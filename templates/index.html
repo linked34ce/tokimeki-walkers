@@ -8,6 +8,8 @@
     {% for article in articles %}
         <article>
         <h2>{{ article.title }}</h2>
+        <a href="/update/{{ article.id }}" role="button">編集</a>
+        <a href="/delete/{{ article.id }}" role="button">削除</a>
         <p>{{ article.created_at }}</p>
         <p>{{ article.body }}</p>
     </article>

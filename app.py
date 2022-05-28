@@ -17,15 +17,12 @@ def blog():
         dbname = "main.db"
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
-
         cur = conn.cursor()
         sql = "select * from Blog;"
         cur.execute(sql)
         articles = cur.fetchall()
         cur.close()
-
         conn.close()
-
         return render_template("index.html", articles=articles)
 
 @app.route("/create", methods=["GET", "POST"])
@@ -33,19 +30,52 @@ def create():
     if request.method == "POST":
         title = request.form.get("title")
         body = request.form.get("body")
-
         dbname = "main.db"
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
-
         cur = conn.cursor()
         sql = "insert into Blog (title, body) values ('{}', '{}');".format(title, body)
         cur.execute(sql)
         cur.close()
-
         conn.commit()
         conn.close()
-
         return redirect("/")
     else:
         return render_template("create.html")
+
+@app.route("/update/<int:id>", methods=["GET", "POST"])
+def update(id):
+    dbname = "main.db"
+    conn = sqlite3.connect(dbname)
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+
+    if request.method == "POST":
+        title = request.form.get("title")
+        body = request.form.get("body")
+        sql = "update Blog set title = '{}', body = '{}' where id = {};".format(title, body, id)
+        cur.execute(sql)
+        cur.close()
+        conn.commit()
+        conn.close()
+        return redirect("/")
+    else:
+        sql = "select * from Blog  where id = {};".format(id)
+        cur.execute(sql)
+        article = cur.fetchone()
+        cur.close()
+        conn.close()
+        return render_template("update.html", article=article)
+
+@app.route("/delete/<int:id>", methods=["GET"])
+def delete(id):
+    dbname = "main.db"
+    conn = sqlite3.connect(dbname)
+    conn.row_factory = dict_factory
+    cur = conn.cursor()
+    sql = "delete from Blog where id = {};".format(id)
+    cur.execute(sql)
+    cur.close()
+    conn.commit()
+    conn.close()
+    return redirect("/")
