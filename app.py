@@ -1,11 +1,10 @@
 import os
-import re
 from flask import Flask
 from flask import render_template, request, redirect
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
-from numpy import record
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
+from flask_bootstrap import Bootstrap
 # from datetime import datetime
 # import pytz
 
@@ -14,6 +13,8 @@ app.config["SECRET_KEY"] = os.urandom(24)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+bootstrap = Bootstrap(app)
 
 class User():
     is_authenticated = True
