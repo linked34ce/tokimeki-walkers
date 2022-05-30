@@ -1,4 +1,6 @@
 import os
+import re
+from unittest import result
 from flask import Flask
 from flask import render_template, request, redirect
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
@@ -150,19 +152,45 @@ def delete(id):
 def signup():
     if request.method == "POST":
         username = request.form.get("username")
-        raw_password = request.form.get("password")
-        password = generate_password_hash(raw_password, method="sha256")
+        password = request.form.get("password")
+        password_confirm = request.form.get("password-confirm")
 
-        dbname = "main.db"
-        conn = sqlite3.connect(dbname)
-        cur = conn.cursor()
-        sql = "insert into Users (name, password) values ('{}', '{}');".format(username, password)
-        cur.execute(sql)
-        conn.commit()
-        cur.close()
-        conn.close()
+        result = "<span class='text-danger'>*</span> "
+        pattern = re.compile(r'^[a-zA-Z0-9]+$')
 
-        return redirect("/login")
+        if not username or not password or not password_confirm:
+            result += "すべての項目を入力してください"
+        elif len(password) < 8 and not pattern.match(password):
+            result += "パスワードは8文字以上の半角英数字で入力してください"
+        elif len(password) < 8:
+            result += "パスワードは8文字以上で入力してください"
+        elif not pattern.match(password):
+            result += "パスワードは半角英数字で入力してください"
+        elif password != password_confirm:
+            result += "再入力したパスワードが一致しません"
+
+        else:
+            password_hash = generate_password_hash(password, method="sha256")
+
+            dbname = "main.db"
+            conn = sqlite3.connect(dbname)
+            cur = conn.cursor()
+            sql = "insert into Users (name, password) values ('{}', '{}');".format(username, password_hash)
+
+            try:
+                cur.execute(sql)
+            except sqlite3.IntegrityError:
+                result = "そのユーザ名はすでに使用されています"
+                conn.commit()
+                cur.close()
+                conn.close()
+            else:
+                conn.commit()
+                cur.close()
+                conn.close()
+                return redirect("/login")
+
+        return render_template("signup.html", result=result)
     else:
         return render_template("signup.html")
 

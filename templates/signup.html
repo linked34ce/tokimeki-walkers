@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<body>
+{# <body>
     <h1>ユーザ登録</h1>
     <form method="POST">
         <label for="">ユーザ名</label>
@@ -11,6 +11,38 @@
         <input type="password" name="password">
         <input type="submit" value="新規登録">
     </form>
-</body>
+</body> #}
+
+    <div class="position-absolute top-50 start-50 translate-middle w-75 h-100 my-5">
+        <div class="card border-dark bg-light border-2 rounded-3">
+            <div class="card-body mx-4 mt-3 mb-2">
+                <h2 class="card-title text-center mb-3">新規ユーザ登録</h2>
+                <p id="result">{{ result | default("<br>") | safe }}</p>
+                <form method="POST">
+                    <div class="mb-4">
+                        <label>ユーザ名</label>
+                        <input type="text" name="username" class="form-control">
+                        <p class="form-text">ユーザ名は一意である必要があります</p>
+                    </div>
+                    <div class="mb-4">
+                        <label>パスワード</label>
+                        <input type="password" name="password" class="form-control">
+                        <p class="form-text">8文字以上の半角英数字</p>
+                    </div>
+                    <div class="mb-4">
+                        <label>パスワード (再入力)</label>
+                        <input type="password" name="password-confirm" class="form-control">
+                        <p class="form-text">確認のため，もう一度入力してください</p>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-success">登録</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="text-center">
+            <a href="/login" class="btn btn-secondary mt-4">もどる</a>
+        </div>
+    </div>
 
 {% endblock %}

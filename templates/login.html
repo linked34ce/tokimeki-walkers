@@ -1,18 +1,29 @@
-{% extends "bootstrap/base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 
-<body>
-    <div class="container">
-        <h1>ログイン画面</h1>
-        <form method="POST">
-            <label for="">ユーザ名</label>
-            <input type="text" name="username" class="form-control">
-            <label for="">パスワード</label>
-            <input type="password" name="password" class="form-control">
-            <input type="submit" value="ログイン" class="btn btn-primary">
-        </form>
+    <div class="position-absolute start-50 top-50 translate-middle w-75 h-100 my-5">
+        <div class="card border-dark bg-light border-2 rounded-3">
+            <div class="card-body mx-4 mt-3 mb-2">
+                <h1 class="card-title text-center mb-3">TOKIMEKI Walkers</h1>
+                <h2 class="card-title text-center mb-3">ログインページ</h2>
+                <p id="result"><br></p>
+                <form method="POST">
+                    <div class="mb-4">
+                        <label>ユーザ名</label>
+                        <input type="text" name="username" class="form-control">
+                    </div>
+                    <div class="mb-4">
+                        <label>パスワード</label>
+                        <input type="password" name="password" class="form-control">
+                    </div>
+                    <div class="text-center mb-3">
+                        <button type="submit" class="btn btn-primary">ログイン</button>
+                        <a href="/signup" class="btn btn-outline-success ms-4">新規登録</a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-</body>
 
 {% endblock %}
