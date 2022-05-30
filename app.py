@@ -4,7 +4,7 @@ from flask import render_template, request, redirect
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
-from flask_bootstrap import Bootstrap
+# from flask_bootstrap import Bootstrap
 # from datetime import datetime
 # import pytz
 
@@ -14,7 +14,7 @@ app.config["SECRET_KEY"] = os.urandom(24)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-bootstrap = Bootstrap(app)
+# bootstrap = Bootstrap(app)
 
 class User():
     is_authenticated = True
@@ -34,8 +34,8 @@ class User():
         sql = "select * from Users where name = '{}';".format(name)
         cur.execute(sql)
         record = cur.fetchone()
-        cur.close()
         conn.commit()
+        cur.close()
         conn.close()
 
         if record:
@@ -53,8 +53,8 @@ class User():
         sql = "select * from Users where id = {};".format(id)
         cur.execute(sql)
         record = cur.fetchone()
-        cur.close()
         conn.commit()
+        cur.close()
         conn.close()
         return User(record["name"])
         
@@ -96,8 +96,8 @@ def create():
         cur = conn.cursor()
         sql = "insert into Blog (title, body) values ('{}', '{}');".format(title, body)
         cur.execute(sql)
-        cur.close()
         conn.commit()
+        cur.close()
         conn.close()
 
         return redirect("/")
@@ -118,8 +118,8 @@ def update(id):
 
         sql = "update Blog set title = '{}', body = '{}' where id = {};".format(title, body, id)
         cur.execute(sql)
-        cur.close()
         conn.commit()
+        cur.close()
         conn.close()
 
         return redirect("/")
@@ -140,8 +140,8 @@ def delete(id):
     cur = conn.cursor()
     sql = "delete from Blog where id = {};".format(id)
     cur.execute(sql)
-    cur.close()
     conn.commit()
+    cur.close()
     conn.close()
 
     return redirect("/")
@@ -158,8 +158,8 @@ def signup():
         cur = conn.cursor()
         sql = "insert into Users (name, password) values ('{}', '{}');".format(username, password)
         cur.execute(sql)
-        cur.close()
         conn.commit()
+        cur.close()
         conn.close()
 
         return redirect("/login")
