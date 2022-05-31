@@ -2,18 +2,51 @@
 
 {% block content %}
 
-<h1>メインページ</h1>
-<h3>ようこそ，{{ username }}さん</h3>
-<a href="/create" role="button">新規登録画面</a>
-<a href="/logout" role="button">ログアウト</a>
-{% for article in articles %}
-<article>
-    <h2>{{ article.title }}</h2>
-    <a href="/update/{{ article.id }}" role="button">編集</a>
-    <a href="/delete/{{ article.id }}" role="button">削除</a>
-    <p>{{ article.created_at }}</p>
-    <p>{{ article.body }}</p>
-</article>
-{% endfor %}
+<h1 class="mb-3">歌詞集め</h1>
+<h3 class="mb-3">〜 Lyric Hunt 〜</h3>
+<a href="/" role="button" class="btn btn-secondary">もどる</a>
+
+<div class="my-3">
+    <p>各スポットで写真を撮影して，歌詞カードを完成させよう!!</p>
+    <div class="card border border-2 border-primary my-3">
+        <div class="card-header">
+            <h4 class="fst-italic">Colorful Dreams! Colorful Smiles!</h4>
+            <p>歌詞集め率: 19%</p>
+        </div>
+        <div class="card-body">
+            <p>
+                夢を奏でよう<br>
+                Rainbow World!<br>
+                ○△※&%○△※&%<br>
+                <br>
+                虹色染まる季節<br>
+                走り出したDays<br>
+                <br>
+                ○△※&%○△※&%<br>
+                こぼれる光 まぶしくて<br>
+                <br>
+                ○△※&%○△※&%<br>
+                ……
+            </p>
+        </div>
+    </div>
+    <div class="card border border-2 border-primary my-3">
+        <div class="card-header">
+            <h4 class="fst-italic">NEO SKY, NEO MAP!</h4>
+            <p>歌詞集め率: 15%</p>
+        </div>
+        <div class="card-body">
+            <p>
+                ゆっくりと走るこの道<br>
+                ○△※&%○△※&%<br>
+                <br>
+                ○△※&%○△※&%<br>
+                君へと伝えたいんだ<br>
+                <br>
+                ……
+            </p>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

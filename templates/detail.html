@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="mb-3">{{ location_id }}. ダイバーシティ 東京プラザ</h1>
+<a href="/rally" role="button" class="btn btn-secondary">もどる</a>
+
+<div class="my-3">
+    <div class="card my-3 border border-2 border-primary">
+        <div class="card-body">
+            <h4>概要</h4>
+            <p>ダイバーシティ 東京プラザは，…</p>
+        </div>
+    </div>
+    <div class="card my-3 border border-2 border-warning">
+        <div class="card-body">
+            <h4>登場シーン</h4>
+            <p>TVアニメ1期第1話では，2年生の優木せつ菜が……</p>
+            <img src="{{ url_for ('static', filename='tmp/setsuna.jpg') }}" height="120" class="border border-1 border-dark">
+        </div>
+    </div>
+    <div class="card my-3 border border-2 border-success">
+        <div class="card-body">
+            <h4>最寄りの聖地</h4>
+            <p>・東京テレポート駅 (500m)<br>・セントラル広場 (600m)</p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

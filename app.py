@@ -91,6 +91,17 @@ def rally():
 
         return render_template("rally.html", username=username)
 
+@app.route("/rally/<int:location_id>", methods=["GET"])
+@login_required
+def detail(location_id):
+    if request.method == "GET":
+        if User.name:
+            username=User.name
+        else:
+            return redirect(url_for("login"))
+
+        return render_template("detail.html", location_id=location_id)
+
 @app.route("/map", methods=["GET"])
 @login_required
 def map():
@@ -101,6 +112,17 @@ def map():
             return redirect(url_for("login"))
 
         return render_template("map.html", username=username)
+
+@app.route("/map/<int:location_id>", methods=["GET"])
+@login_required
+def navigation(location_id):
+    if request.method == "GET":
+        if User.name:
+            username=User.name
+        else:
+            return redirect(url_for("login"))
+
+        return render_template("navigation.html", location_id=location_id)
 
 @app.route("/lyrics", methods=["GET"])
 @login_required
