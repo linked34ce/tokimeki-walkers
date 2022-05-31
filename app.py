@@ -1,9 +1,8 @@
 import os
 import re
-from unittest import result
 from flask import Flask
-from flask import render_template, request, redirect
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required
+from flask import render_template, request, redirect, url_for
+from flask_login import LoginManager, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 # from flask_bootstrap import Bootstrap
@@ -72,8 +71,13 @@ def load_user(user_id):
 
 @app.route("/", methods=["GET"])
 @login_required
-def blog():
+def main():
     if request.method == "GET":
+        if User.name:
+            username=User.name
+        else:
+            return redirect(url_for("login"))
+
         dbname = "main.db"
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
@@ -84,7 +88,7 @@ def blog():
         cur.close()
         conn.close()
 
-        return render_template("index.html", articles=articles)
+        return render_template("index.html", username=username, articles=articles)
 
 @app.route("/create", methods=["GET", "POST"])
 @login_required
@@ -102,7 +106,7 @@ def create():
         cur.close()
         conn.close()
 
-        return redirect("/")
+        return redirect(url_for("main"))
     else:
         return render_template("create.html")
 
@@ -124,7 +128,7 @@ def update(id):
         cur.close()
         conn.close()
 
-        return redirect("/")
+        return redirect(url_for("main"))
     else:
         sql = "select * from Blog  where id = {};".format(id)
         cur.execute(sql)
@@ -146,7 +150,7 @@ def delete(id):
     cur.close()
     conn.close()
 
-    return redirect("/")
+    return redirect(url_for("main"))
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -180,7 +184,7 @@ def signup():
             try:
                 cur.execute(sql)
             except sqlite3.IntegrityError:
-                result = "そのユーザ名はすでに使用されています"
+                result += "そのユーザ名はすでに使用されています"
                 conn.commit()
                 cur.close()
                 conn.close()
@@ -188,7 +192,7 @@ def signup():
                 conn.commit()
                 cur.close()
                 conn.close()
-                return redirect("/login")
+                return redirect(url_for("login"))
 
         return render_template("signup.html", result=result)
     else:
@@ -200,10 +204,11 @@ def login():
         username = request.form.get("username")
         password = request.form.get("password")
         user = User(username)
+        User.name = username
 
         if user.id > 0 and check_password_hash(user.password, password):
             login_user(user)
-            return redirect("/")
+            return redirect(url_for("main"))
         else:
             return render_template("login.html")
     else:
@@ -213,4 +218,4 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect("/login")
+    return redirect(url_for("login"))

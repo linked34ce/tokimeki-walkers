@@ -2,7 +2,8 @@
 
 {% block content %}
 
-<h1>ブログアプリケーション</h1>
+<h1>メインページ</h1>
+<h3>ようこそ，{{ username }}さん</h3>
 <a href="/create" role="button">新規登録画面</a>
 <a href="/logout" role="button">ログアウト</a>
 {% for article in articles %}
