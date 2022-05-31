@@ -259,6 +259,10 @@ def login():
     else:
         return render_template("login.html")
 
+@app.route("/config", methods=["GET", "POST"])
+def configure():
+    return "<h1>まだ何もないよ！</h1>"
+
 @app.route("/logout")
 @login_required
 def logout():
