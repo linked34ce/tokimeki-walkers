@@ -78,17 +78,40 @@ def main():
         else:
             return redirect(url_for("login"))
 
-        dbname = "main.db"
-        conn = sqlite3.connect(dbname)
-        conn.row_factory = dict_factory
-        cur = conn.cursor()
-        sql = "select * from Blog;"
-        cur.execute(sql)
-        articles = cur.fetchall()
-        cur.close()
-        conn.close()
+        return render_template("index.html", username=username)
 
-        return render_template("index.html", username=username, articles=articles)
+@app.route("/rally", methods=["GET"])
+@login_required
+def rally():
+    if request.method == "GET":
+        if User.name:
+            username=User.name
+        else:
+            return redirect(url_for("login"))
+
+        return render_template("rally.html", username=username)
+
+@app.route("/map", methods=["GET"])
+@login_required
+def map():
+    if request.method == "GET":
+        if User.name:
+            username=User.name
+        else:
+            return redirect(url_for("login"))
+
+        return render_template("map.html", username=username)
+
+@app.route("/lyrics", methods=["GET"])
+@login_required
+def lyrics():
+    if request.method == "GET":
+        if User.name:
+            username=User.name
+        else:
+            return redirect(url_for("login"))
+
+        return render_template("lyrics.html", username=username)
 
 @app.route("/create", methods=["GET", "POST"])
 @login_required

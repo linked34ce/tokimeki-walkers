@@ -3,17 +3,22 @@
 {% block content %}
 
 <h1>メインページ</h1>
-<h3>ようこそ，{{ username }}さん</h3>
-<a href="/create" role="button">新規登録画面</a>
-<a href="/logout" role="button">ログアウト</a>
-{% for article in articles %}
-<article>
-    <h2>{{ article.title }}</h2>
-    <a href="/update/{{ article.id }}" role="button">編集</a>
-    <a href="/delete/{{ article.id }}" role="button">削除</a>
-    <p>{{ article.created_at }}</p>
-    <p>{{ article.body }}</p>
-</article>
-{% endfor %}
+<h3>ようこそ、{{ username }}さん</h3>
+<a href="/logout" role="button" class="btn btn-danger my-4">ログアウト</a>
+
+<div>
+    <h4>概要</h4>
+    <p>『TOKIMEKI Walkers』は、聖地巡礼を支援するARフォトラリーシステムです。</p>
+    <p>訪問聖地数: 7 / 30</p>
+    <p>聖地撮影数: 4 / 30</p>
+    <p>歌詞集め率: 17%</p>
+</div>
+
+
+<div class="my-4">
+    <a href="/rally" role="button" class="btn btn-primary">フォトラリー</a>
+    <a href="/map" role="button" class="btn btn-primary">マップ</a>
+    <a href="/lyrics" role="button" class="btn btn-primary">歌詞集め</a>
+</div>
 
 {% endblock %}
