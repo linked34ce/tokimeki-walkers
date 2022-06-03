@@ -21,8 +21,8 @@
                 <form method="POST">
                     <div class="mb-4">
                         <label>ユーザ名</label>
-                        <input type="text" name="username" class="form-control">
-                        <p class="form-text">ユーザ名は一意である必要があります</p>
+                        <input type="text" name="username" value="{{ username }}" class="form-control">
+                        <p class="form-text">ユーザ名は一意である必要があります<br>シングルクオーテーション (') と空白文字は使用できません</p>
                     </div>
                     <div class="mb-4">
                         <label>パスワード</label>

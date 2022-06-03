@@ -3,6 +3,7 @@ import re
 from flask import Flask
 from flask import render_template, request, redirect, url_for
 from flask_login import LoginManager, login_user, logout_user, login_required
+from matplotlib import use
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 # from flask_bootstrap import Bootstrap
@@ -26,22 +27,27 @@ class User():
     id = 0
 
     def __init__(self, name):
-        self.name = name
+        record = None
+        username_pattern = re.compile(r'^(?!.*(\'|\s)).*$')
 
-        dbname = "main.db"
-        conn = sqlite3.connect(dbname)
-        conn.row_factory = dict_factory
-        cur = conn.cursor()
-        sql = "select * from Users where name = '{}';".format(name)
-        cur.execute(sql)
-        record = cur.fetchone()
-        conn.commit()
-        cur.close()
-        conn.close()
+        if username_pattern.match(name):
+            dbname = "main.db"
+            conn = sqlite3.connect(dbname)
+            conn.row_factory = dict_factory
+            cur = conn.cursor()
+            sql = "select * from Users where name = '{}';".format(name)
+            cur.execute(sql)
+            record = cur.fetchone()
+            conn.commit()
+            cur.close()
+            conn.close()
 
         if record:
             self.id = record["id"]
+            self.name = record["name"]
             self.password = record["password"]
+        else:
+            self.name = None
 
     def get_id(self):
         return self.id
@@ -205,15 +211,18 @@ def signup():
         password_confirm = request.form.get("password-confirm")
 
         result = "<span class='text-danger'>*</span> "
-        pattern = re.compile(r'^[a-zA-Z0-9]+$')
+        username_pattern = re.compile(r'^(?!.*(\'|\s)).*$')
+        password_pattern = re.compile(r'^[a-zA-Z0-9]+$')
 
         if not username or not password or not password_confirm:
             result += "すべての項目を入力してください"
-        elif len(password) < 8 and not pattern.match(password):
+        elif not username_pattern.match(username):
+            result += "ユーザ名にシングルクオーテーション (') および空白文字は使用できません"
+        elif len(password) < 8 and not password_pattern.match(password):
             result += "パスワードは8文字以上の半角英数字で入力してください"
         elif len(password) < 8:
             result += "パスワードは8文字以上で入力してください"
-        elif not pattern.match(password):
+        elif not password_pattern.match(password):
             result += "パスワードは半角英数字で入力してください"
         elif password != password_confirm:
             result += "再入力したパスワードが一致しません"
@@ -229,7 +238,8 @@ def signup():
             try:
                 cur.execute(sql)
             except sqlite3.IntegrityError:
-                result += "そのユーザ名はすでに使用されています"
+                result += 'ユーザ名 "{}" はすでに使用されています'.format(username)
+                username = ""
                 conn.commit()
                 cur.close()
                 conn.close()
@@ -239,7 +249,7 @@ def signup():
                 conn.close()
                 return redirect(url_for("login"))
 
-        return render_template("signup.html", result=result)
+        return render_template("signup.html", result=result, username=username)
     else:
         return render_template("signup.html")
 
@@ -251,11 +261,31 @@ def login():
         user = User(username)
         User.name = username
 
-        if user.id > 0 and check_password_hash(user.password, password):
-            login_user(user)
-            return redirect(url_for("main"))
-        else:
-            return render_template("login.html")
+        result = "<span class='text-danger'>*</span>"
+        password_pattern = re.compile(r'^[a-zA-Z0-9]+$')
+
+        if not username and not password:
+            result += "ユーザ名とパスワードを入力してください"
+            username = ""
+        elif not username:
+            result += "ユーザ名を入力してください"
+            username = ""
+        elif not password:
+            result += "パスワードを入力してください"
+        elif len(password) < 8 or not password_pattern.match(password):
+            result += "パスワードは8文字以上の半角英数字です"
+        elif not user.name:
+            result += 'ユーザ名 "{}" は登録されていません'.format(username)
+            username = ""
+        elif user.password:
+            if not check_password_hash(user.password, password):
+                result += "パスワードに誤りがあります"
+            elif user.name:
+                print(user.name, user.password)
+                login_user(user)
+                return redirect(url_for("main"))
+        print(user.name)
+        return render_template("login.html", result=result, username=username)
     else:
         return render_template("login.html")
 

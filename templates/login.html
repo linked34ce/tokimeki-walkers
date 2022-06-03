@@ -7,11 +7,11 @@
             <div class="card-body mx-4 mt-3 mb-2">
                 <h1 class="card-title text-center mb-3">TOKIMEKI Walkers</h1>
                 <h2 class="card-title text-center mb-3">ログインページ</h2>
-                <p id="result"><br></p>
+                <p id="result">{{ result | default("<br>") | safe }}</p>
                 <form method="POST">
                     <div class="mb-4">
                         <label>ユーザ名</label>
-                        <input type="text" name="username" class="form-control">
+                        <input type="text" name="username" value="{{ username }}" class="form-control">
                     </div>
                     <div class="mb-4">
                         <label>パスワード</label>
