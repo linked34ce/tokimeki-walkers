@@ -2,21 +2,27 @@
 
 {% block content %}
 
-<h1 class="mb-3">{{ location_id }}. ダイバーシティ 東京プラザ</h1>
-<a href="/rally" role="button" class="btn btn-secondary">もどる</a>
+<h1 class="mb-3">{{ location.id }}. {{ location.name }}</h1>
+<a href="{{ url_for('rally') }}" role="button" class="btn btn-secondary">もどる</a>
+<br>
+
+<div class="my-3">
+    <button class="btn btn-primary">写真ありでチェックイン</button>
+    <button class="btn btn-secondary">写真なしでチェックイン</button>
+</div>
 
 <div class="my-3">
     <div class="card my-3 border border-2 border-primary">
         <div class="card-body">
             <h4>概要</h4>
-            <p>ダイバーシティ 東京プラザは，…</p>
+            <p>{{ location.summary }}</p>
         </div>
     </div>
     <div class="card my-3 border border-2 border-warning">
         <div class="card-body">
             <h4>登場シーン</h4>
-            <p>TVアニメ1期第1話では，2年生の優木せつ菜が……</p>
-            <img src="{{ url_for ('static', filename='tmp/setsuna.jpg') }}" height="120" class="border border-1 border-dark">
+            <p>{{ location.scene }}</p>
+            <img src="{{ location.image }}" height="120" class="border border-1 border-dark">
         </div>
     </div>
     <div class="card my-3 border border-2 border-success">

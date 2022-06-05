@@ -7,13 +7,14 @@
 <a href="/" role="button" class="btn btn-secondary">もどる</a>
 
 <div class="my-3">
+    {% for location in locations %}
     <div class="card my-3 border border-2 border-primary">
         <div class="card-header">
-            <h4>1. ダイバーシティ 東京プラザ</h4>
+            <h4>{{ location.id }}.  {{ location.name }}</h4>
         </div>
         <div class="card-body">
             <div class="float-start">
-                <a href="/rally/1" role="button" class="btn btn-sm btn-primary mb-4">詳細</a>
+                <a href="/rally/{{ location.id }}" role="button" class="btn btn-sm btn-primary mb-4">詳細</a>
                 <button type="button" role="button" class="btn btn-sm btn-success mb-4" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="ダイバーシティ 東京プラザ">共有</button>
                 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -49,50 +50,7 @@
         </div>
         </div>
     </div>
-    
-    <div class="card my-3 border border-2 border-primary">
-        <div class="card-header">
-            <h4>2. デックス 東京ビーチ</h4>
-        </div>
-        <div class="card-body">
-            <div class="float-start">
-                <a href="/rally/2" role="button" class="btn btn-sm btn-primary mb-4">詳細</a>
-                <button type="button" class="btn btn-sm btn-success mb-4 disabled" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="デックス東京ビーチ">共有</button>
-                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Twitterで共有</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <form>
-                                <div class="mb-3">
-                                    <label for="message-text" class="col-form-label">内容:</label>
-                                    <textarea class="form-control" id="message-text"></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <p for="message-text" class="">画像:</p>
-                                    <img src="{{ url_for ('static', filename='tmp/no_image.jpg') }}" height="150" class="border border-1 border-dark">
-                                </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">とじる</button>
-                                <button type="button" class="btn btn-primary">Tweet</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <p>未訪問⚠️</p>
-                <p>訪問回数: 0</p>
-            </div>
-        <div>
-            <img src="{{ url_for ('static', filename='tmp/no_image.jpg') }}" height="120" class="float-start mx-4 border border-1 border-dark">
-        </div>
-        </div>
-    </div>
+    {% endfor %}
 </div>
 
 {% endblock %}

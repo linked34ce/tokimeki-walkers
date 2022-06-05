@@ -4,8 +4,8 @@
 
 <h1 class="mb-3">TOKIMEKI Walkers</h1>
 <h3>ようこそ、{{ username }}さん</h3>
-<a href="/config" role="button" class="btn btn-outline-dark my-4">登録情報変更</a>
-<a href="/logout" role="button" class="btn btn-outline-danger my-4">ログアウト</a>
+<a href="{{ url_for('config') }}" role="button" class="btn btn-outline-dark my-4">登録情報変更</a>
+<a href="{{ url_for('logout') }}" role="button" class="btn btn-outline-danger my-4">ログアウト</a>
 
 <div class="my-3">
     <div>
@@ -23,9 +23,9 @@
 
 
 <div class="my-4">
-    <a href="/rally" role="button" class="btn btn-primary">フォトラリー</a>
-    <a href="/map" role="button" class="btn btn-primary">マップ</a>
-    <a href="/lyrics" role="button" class="btn btn-primary">歌詞集め</a>
+    <a href="{{ url_for('rally') }}" role="button" class="btn btn-primary">フォトラリー</a>
+    <a href="{{ url_for('map') }}" role="button" class="btn btn-primary">マップ</a>
+    <a href="{{ url_for('lyrics') }}" role="button" class="btn btn-primary">歌詞集め</a>
 </div>
 
 {% endblock %}

@@ -76,7 +76,7 @@ def load_user(user_id):
     return User.get_by_id(User, user_id)
 
 @app.route("/", methods=["GET"])
-@login_required
+#@login_required
 def main():
     if request.method == "GET":
         if User.name:
@@ -87,29 +87,51 @@ def main():
         return render_template("index.html", username=username)
 
 @app.route("/rally", methods=["GET"])
-@login_required
+#@login_required
 def rally():
     if request.method == "GET":
         if User.name:
             username=User.name
         else:
             return redirect(url_for("login"))
+        
+        dbname = "main.db"
+        conn = sqlite3.connect(dbname)
+        conn.row_factory = dict_factory
+        cur = conn.cursor()
+        sql = "select id, name from Locations;"
+        cur.execute(sql)
+        locations = cur.fetchall()
+        conn.commit()
+        cur.close()
+        conn.close()
 
-        return render_template("rally.html", username=username)
+        return render_template("rally.html", username=username, locations=locations)
 
 @app.route("/rally/<int:location_id>", methods=["GET"])
-@login_required
+#@login_required
 def detail(location_id):
     if request.method == "GET":
         if User.name:
             username=User.name
         else:
             return redirect(url_for("login"))
+        
+        dbname = "main.db"
+        conn = sqlite3.connect(dbname)
+        conn.row_factory = dict_factory
+        cur = conn.cursor()
+        sql = "select * from Locations where id = {};".format(location_id)
+        cur.execute(sql)
+        location = cur.fetchone()
+        conn.commit()
+        cur.close()
+        conn.close()
 
-        return render_template("detail.html", location_id=location_id)
-
+        return render_template("detail.html", username=username, location=location)
+    
 @app.route("/map", methods=["GET"])
-@login_required
+#@login_required
 def map():
     if request.method == "GET":
         if User.name:
@@ -120,7 +142,7 @@ def map():
         return render_template("map.html", username=username)
 
 @app.route("/map/<int:location_id>", methods=["GET"])
-@login_required
+#@login_required
 def navigation(location_id):
     if request.method == "GET":
         if User.name:
@@ -131,7 +153,7 @@ def navigation(location_id):
         return render_template("navigation.html", location_id=location_id)
 
 @app.route("/lyrics", methods=["GET"])
-@login_required
+#@login_required
 def lyrics():
     if request.method == "GET":
         if User.name:
@@ -142,7 +164,7 @@ def lyrics():
         return render_template("lyrics.html", username=username)
 
 @app.route("/create", methods=["GET", "POST"])
-@login_required
+#@login_required
 def create():
     if request.method == "POST":
         title = request.form.get("title")
@@ -162,7 +184,7 @@ def create():
         return render_template("create.html")
 
 @app.route("/update/<int:id>", methods=["GET", "POST"])
-@login_required
+#@login_required
 def update(id):
     dbname = "main.db"
     conn = sqlite3.connect(dbname)
@@ -190,7 +212,7 @@ def update(id):
         return render_template("update.html", article=article)
 
 @app.route("/delete/<int:id>", methods=["GET"])
-@login_required
+#@login_required
 def delete(id):
     dbname = "main.db"
     conn = sqlite3.connect(dbname)
@@ -290,11 +312,11 @@ def login():
         return render_template("login.html")
 
 @app.route("/config", methods=["GET", "POST"])
-def configure():
+def config():
     return "<h1>まだ何もないよ！</h1>"
 
 @app.route("/logout")
-@login_required
+#@login_required
 def logout():
     logout_user()
     return redirect(url_for("login"))
