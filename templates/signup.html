@@ -35,7 +35,7 @@
                         <p class="form-text">確認のため，もう一度入力してください</p>
                     </div>
                     <div class="text-center">
-                        <button type="submit" class="btn btn-success">登録</button>
+                        {{ button | default("<button type='submit' class='btn btn-success'>登録</button>") | safe }}              
                     </div>
                 </form>
             </div>

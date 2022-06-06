@@ -1,13 +1,15 @@
 import os
+import ssl
 import re
+from unittest import result
+import requests
 from flask import Flask
 from flask import render_template, request, redirect, url_for
 from flask_login import LoginManager, login_user, logout_user, login_required
 from matplotlib import use
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
-# from flask_bootstrap import Bootstrap
-# from datetime import datetime
+from datetime import datetime
 # import pytz
 
 app = Flask(__name__)
@@ -15,8 +17,6 @@ app.config["SECRET_KEY"] = os.urandom(24)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-
-# bootstrap = Bootstrap(app)
 
 class User():
     is_authenticated = True
@@ -99,10 +99,18 @@ def rally():
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        sql = "select id, name from Locations;"
-        cur.execute(sql)
+        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}';".format(username)
+        cur.execute(sql1)
         locations = cur.fetchall()
-        conn.commit()
+       
+        # for location in locations:
+        #     if not location:
+        #         sql2 = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(username, location_id, "static/tmp/no_image.jpg")
+        #         cur.execute(sql2)
+        #         conn.commit()
+        #         cur.execute(sql1)
+        # locations = cur.fetchall()
+
         cur.close()
         conn.close()
 
@@ -121,14 +129,52 @@ def detail(location_id):
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        sql = "select * from Locations where id = {};".format(location_id)
-        cur.execute(sql)
+        sql1 = "select * from Locations inner join Visits on Locations.id = Visits.location_id where location_id = {} and username = '{}';".format(location_id, username)
+        cur.execute(sql1)
         location = cur.fetchone()
-        conn.commit()
         cur.close()
         conn.close()
 
-        return render_template("detail.html", username=username, location=location)
+        if location["visit_count"] < 1:
+            message = "⚠️この聖地は未訪問です"
+        else:
+            message = "✅この聖地は{}回訪問済みです".format(location["visit_count"])
+
+        return render_template("detail.html", username=username, location=location, message=message)
+
+@app.route("/checkin/<int:location_id>/<int:with_photo>")
+#@login_required
+def checkin(location_id, with_photo):
+    if request.method == "GET":
+        if User.name:
+            if with_photo:
+                photo = "/static/tmp/divercity.jpg"
+            else:
+                photo = "/static/tmp/no_image.jpg"
+            username=User.name
+            dbname = "main.db"
+            conn = sqlite3.connect(dbname)
+            conn.row_factory = dict_factory
+            cur = conn.cursor()
+            sql1 = "update Visits set photo = '{}', visit_count = visit_count + 1 where username = '{}' and location_id = {};".format(photo, username, location_id)
+            cur.execute(sql1)
+            conn.commit()
+            sql2 = "select * from Locations inner join Visits on Locations.id = Visits.location_id where location_id = {} and username = '{}';".format(location_id, username)
+            cur.execute(sql2)
+            location = cur.fetchone()
+            cur.close()
+            conn.close()
+
+            if location["visit_count"] < 1:
+                message = "⚠️この聖地は未訪問です"
+            else:
+                message = "✅この聖地は{}回訪問済みです".format(location["visit_count"])
+
+            result = "<span class='text-success'>*</span> チェックインに成功しました"
+        else:
+            return redirect(url_for("login"))
+        
+        return render_template("detail.html", location_id=location_id, location=location, message=message, result=result)
     
 @app.route("/map", methods=["GET"])
 #@login_required
@@ -262,14 +308,28 @@ def signup():
             except sqlite3.IntegrityError:
                 result += 'ユーザ名 "{}" はすでに使用されています'.format(username)
                 username = ""
-                conn.commit()
                 cur.close()
                 conn.close()
             else:
+                dbname = "main.db"
+       
+                sql1 = "select id from Locations;"
+                cur.execute(sql1)
+                location_ids = cur.fetchall()
+        
+                for location_id in location_ids:        
+                    sql2 = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(username, location_id[0], "static/tmp/no_image.jpg")
+                    try:
+                        cur.execute(sql2)
+                    except sqlite3.IntegrityError:
+                        pass
+
                 conn.commit()
                 cur.close()
                 conn.close()
-                return redirect(url_for("login"))
+
+                User.name = username
+                result = "<span class='text-success'>*</span> ユーザ登録に成功しました"
 
         return render_template("signup.html", result=result, username=username)
     else:
@@ -283,7 +343,7 @@ def login():
         user = User(username)
         User.name = username
 
-        result = "<span class='text-danger'>*</span>"
+        result = "<span class='text-danger'>*</span> "
         password_pattern = re.compile(r'^[a-zA-Z0-9]+$')
 
         if not username and not password:
@@ -303,13 +363,14 @@ def login():
             if not check_password_hash(user.password, password):
                 result += "パスワードに誤りがあります"
             elif user.name:
-                print(user.name, user.password)
                 login_user(user)
                 return redirect(url_for("main"))
-        print(user.name)
         return render_template("login.html", result=result, username=username)
     else:
-        return render_template("login.html")
+        if User.name:
+            return render_template("login.html", username=User.name)
+        else:
+            return render_template("login.html")
 
 @app.route("/config", methods=["GET", "POST"])
 def config():
@@ -319,4 +380,5 @@ def config():
 #@login_required
 def logout():
     logout_user()
+    User.name = None
     return redirect(url_for("login"))

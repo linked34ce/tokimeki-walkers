@@ -42,8 +42,8 @@
                         </div>
                     </div>
                 </div>
-                <p>訪問済✅</p>
-                <p>訪問回数: 2</p>
+                <p>{{ visited }}</p>
+                <p>訪問回数: {{ location.visit_count }}
             </div>
         <div>
             <img src="{{ url_for ('static', filename='tmp/divercity.jpg') }}" height="120" class="float-start mx-4 border border-1 border-dark">
