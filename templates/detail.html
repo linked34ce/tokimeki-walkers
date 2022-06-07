@@ -9,9 +9,20 @@
 
 <div class="my-3">
     <div>
-        <button id="with-photo" type="button" class="btn btn-primary" onclick="checkin(1, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }})">写真ありでチェックイン</button>
-        <button id="withoutphoto" type="button" class="btn btn-secondary" onclick="checkin(0, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }})">写真なしでチェックイン</button>
-        <p id="result" class="mt-3">{{ result | default("<br>") | safe }}</p>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#withPhoto" onclick="checkin(1, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }}, {{ location.visit_count }}, '{{ location.last_visit }}')">写真ありでチェックイン</button>
+        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#withPhoto" onclick="checkin(0, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }}, {{ location.visit_count }}, '{{ location.last_visit }}')">写真なしでチェックイン</button>
+
+        <div class="modal fade" id="withPhoto" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <p id="result">{{ result | default("チェックイン中…") | safe }}</p>
+                    </div>
+                    <div id="close" class="modal-footer"><button class="btn btn-secondary disabled">とじる</button></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -32,7 +43,8 @@
     <div class="card my-3 border border-2 border-success">
         <div class="card-body">
             <h4>最寄りの聖地</h4>
-            <p>・東京テレポート駅 (500m)<br>・セントラル広場 (600m)</p>
+            <p>・aaa (???m)</p>
+            <p>・bbb (???m)</p>
         </div>
     </div>
 </div>

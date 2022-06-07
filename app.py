@@ -83,8 +83,26 @@ def main():
             username=User.name
         else:
             return redirect(url_for("login"))
+        
+        dbname = "main.db"
+        conn = sqlite3.connect(dbname)
+        conn.row_factory = dict_factory
+        cur = conn.cursor()
+        sql = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}';".format(username)
+        cur.execute(sql)
+        locations = cur.fetchall()
 
-        return render_template("index.html", username=username)
+        num_of_locations = len(locations)
+        num_of_visited = 0
+        num_of_photos = 0
+        for location in locations:
+            if location["visit_count"] > 0:
+                num_of_visited += 1
+            print(location["photo"])
+            if location["photo"] != "/static/tmp/no_image.jpg":
+                num_of_photos += 1
+
+        return render_template("index.html", username=username, num_of_locations=num_of_locations, num_of_visited=num_of_visited, num_of_photos=num_of_photos)
 
 @app.route("/rally", methods=["GET"])
 #@login_required
@@ -99,17 +117,16 @@ def rally():
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}';".format(username)
-        cur.execute(sql1)
+        sql = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}';".format(username)
+        cur.execute(sql)
         locations = cur.fetchall()
-       
-        # for location in locations:
-        #     if not location:
-        #         sql2 = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(username, location_id, "static/tmp/no_image.jpg")
-        #         cur.execute(sql2)
-        #         conn.commit()
-        #         cur.execute(sql1)
-        # locations = cur.fetchall()
+
+        for location in locations:
+            if location["visit_count"] > 0:
+                location["visited"] = "✅訪問済"
+            else:
+                location["visited"] = "⚠️未訪問"
+                location["share_button"] = " disabled"
 
         cur.close()
         conn.close()
@@ -156,25 +173,15 @@ def checkin(location_id, with_photo):
             conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
-            sql1 = "update Visits set photo = '{}', visit_count = visit_count + 1 where username = '{}' and location_id = {};".format(photo, username, location_id)
-            cur.execute(sql1)
+            sql = "update Visits set photo = '{}', visit_count = visit_count + 1, last_visit = current_timestamp where username = '{}' and location_id = {};".format(photo, username, location_id)
+            cur.execute(sql)
             conn.commit()
-            sql2 = "select * from Locations inner join Visits on Locations.id = Visits.location_id where location_id = {} and username = '{}';".format(location_id, username)
-            cur.execute(sql2)
-            location = cur.fetchone()
             cur.close()
             conn.close()
-
-            if location["visit_count"] < 1:
-                message = "⚠️この聖地は未訪問です"
-            else:
-                message = "✅この聖地は{}回訪問済みです".format(location["visit_count"])
-
-            result = "<span class='text-success'>*</span> チェックインに成功しました"
         else:
             return redirect(url_for("login"))
         
-        return render_template("detail.html", location_id=location_id, location=location, message=message, result=result)
+        return redirect(url_for("detail", location_id=location_id))
     
 @app.route("/map", methods=["GET"])
 #@login_required
@@ -300,27 +307,26 @@ def signup():
 
             dbname = "main.db"
             conn = sqlite3.connect(dbname)
+            conn.row_factory = dict_factory
             cur = conn.cursor()
-            sql = "insert into Users (name, password) values ('{}', '{}');".format(username, password_hash)
+            sql1 = "insert into Users (name, password) values ('{}', '{}');".format(username, password_hash)
 
             try:
-                cur.execute(sql)
+                cur.execute(sql1)
             except sqlite3.IntegrityError:
                 result += 'ユーザ名 "{}" はすでに使用されています'.format(username)
                 username = ""
                 cur.close()
                 conn.close()
             else:
-                dbname = "main.db"
-       
-                sql1 = "select id from Locations;"
-                cur.execute(sql1)
-                location_ids = cur.fetchall()
+                sql2 = "select id from Locations;"
+                cur.execute(sql2)
+                locations = cur.fetchall()
         
-                for location_id in location_ids:        
-                    sql2 = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(username, location_id[0], "static/tmp/no_image.jpg")
+                for location in locations:        
+                    sql3 = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(username, location["id"], "/static/tmp/no_image.jpg")
                     try:
-                        cur.execute(sql2)
+                        cur.execute(sql3)
                     except sqlite3.IntegrityError:
                         pass
 

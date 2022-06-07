@@ -15,12 +15,12 @@
         <div class="card-body">
             <div class="float-start">
                 <a href="/rally/{{ location.id }}" role="button" class="btn btn-sm btn-primary mb-4">詳細</a>
-                <button type="button" role="button" class="btn btn-sm btn-success mb-4" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="ダイバーシティ 東京プラザ">共有</button>
-                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <button type="button" role="button" class="btn btn-sm btn-success mb-4{{ location.share_button | default('') }}" data-bs-toggle="modal" data-bs-target="#modal{{ location.id }}" data-bs-whatever="ダイバーシティ 東京プラザ">共有</button>
+                <div class="modal fade" id="modal{{ location.id }}" tabindex="-1" aria-labelledby="modalLabel{{ location.id }}" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Twitterで共有</h5>
+                                <h5 class="modal-title" id="modalLabel{{ location.id }}">共有</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
@@ -31,22 +31,22 @@
                                 </div>
                                 <div class="mb-3">
                                     <p for="message-text" class="">画像:</p>
-                                    <img src="{{ url_for ('static', filename='tmp/divercity_large.jpg') }}" height="150" class="border border-1 border-dark">
+                                    <img src="{{ location.photo }}" height="150" class="border border-1 border-dark">
                                 </div>
                                 </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">とじる</button>
-                                <button type="button" class="btn btn-primary">Tweet</button>
+                                <button type="button" class="btn btn-primary">投稿する</button>
                             </div>
                         </div>
                     </div>
                 </div>
-                <p>{{ visited }}</p>
+                <p>{{ location.visited }}</p>
                 <p>訪問回数: {{ location.visit_count }}
             </div>
         <div>
-            <img src="{{ url_for ('static', filename='tmp/divercity.jpg') }}" height="120" class="float-start mx-4 border border-1 border-dark">
+            <img src="{{ location.photo }}" height="120" class="float-start mx-4 border border-1 border-dark">
         </div>
         </div>
     </div>
