@@ -1,7 +1,7 @@
 function checkin(withPhoto, locationId, targetLatitude, targetLongitude, visitCount, lastVisit) {
-    const LIMIT = 60000 // 1日: 86400000
+    const LIMIT = 60000; // 1日: 86400000
     const JST = 32400000;
-    const THRESHOLD = 0.005
+    const THRESHOLD = 0.005;
     navigator.geolocation.getCurrentPosition(pos => {
         let visitDate = new Date(lastVisit);
         if (Math.abs(targetLatitude - pos.coords.latitude) >= THRESHOLD || Math.abs(targetLongitude - pos.coords.longitude) >= THRESHOLD) {

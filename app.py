@@ -88,21 +88,28 @@ def main():
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        sql = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}';".format(username)
-        cur.execute(sql)
+        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}';".format(username)
+        cur.execute(sql1)
+        visits = cur.fetchall()
+        sql2 = "select id from Locations"
+        cur.execute(sql2)
         locations = cur.fetchall()
 
         num_of_locations = len(locations)
-        num_of_visited = 0
+        location_id = 0
+        num_of_visited_locs = 0
         num_of_photos = 0
-        for location in locations:
-            if location["visit_count"] > 0:
-                num_of_visited += 1
-            print(location["photo"])
-            if location["photo"] != "/static/tmp/no_image.jpg":
-                num_of_photos += 1
+        for visit in visits:
+            if location_id != visit["location_id"]:
+                location_id = visit["location_id"]
+                num_of_visited_locs += 1
+                if visit["photo"] != "/static/tmp/no_image.jpg":
+                    num_of_photos += 1
 
-        return render_template("index.html", username=username, num_of_locations=num_of_locations, num_of_visited=num_of_visited, num_of_photos=num_of_photos)
+        lyrics_percent = 17
+
+        return render_template("index.html", username=username, num_of_locations=num_of_locations,
+                num_of_visited_locs=num_of_visited_locs, num_of_photos=num_of_photos, lyrics_percent=lyrics_percent)
 
 @app.route("/rally", methods=["GET"])
 #@login_required
@@ -117,19 +124,49 @@ def rally():
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        sql = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}';".format(username)
-        cur.execute(sql)
+        # sql = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}';".format(username)
+        sql1 = "select * from Locations;"
+        cur.execute(sql1)
         locations = cur.fetchall()
 
+        NO_IMG_PATH = "/static/tmp/no_image.jpg"
+
         for location in locations:
+            sql2 = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}' and location_id = '{}' order by time desc;".format(username, location["id"])
+            cur.execute(sql2)
+            visits = cur.fetchall()
+            location["visit_count"] = len(visits)
             if location["visit_count"] > 0:
                 location["visited"] = "✅訪問済"
             else:
                 location["visited"] = "⚠️未訪問"
-                location["share_button"] = " disabled"
+                location["share_button"] = " disabled"     
+            if not visits:
+                location["photo"] = NO_IMG_PATH
+            elif not visits[0]["photo"]:
+                location["photo"] = NO_IMG_PATH
+            else:
+                location["photo"] = visits[0]["photo"]
 
         cur.close()
         conn.close()
+
+        # for visit in visits:
+        #     location = {}
+        #     if location_id != visit["location_id"]:
+        #         print(1)
+        #         location["id"] = visit["location_id"]
+        #         location["name"] = visit["name"]
+        #         location_id = visit["location_id"]
+        #         num_of_visits += 1
+
+        #     if num_of_visits > 0:
+        #         location["visited"] = "✅訪問済"
+        #     else:
+        #         location["visited"] = "⚠️未訪問"
+        #         location["share_button"] = " disabled"
+        #     locations.append(location)
+        #     print(location)
 
         return render_template("rally.html", username=username, locations=locations)
 
@@ -146,11 +183,16 @@ def detail(location_id):
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        sql1 = "select * from Locations inner join Visits on Locations.id = Visits.location_id where location_id = {} and username = '{}';".format(location_id, username)
+        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and username = '{}';".format(location_id, username)
         cur.execute(sql1)
+        visits = cur.fetchall()
+        sql2 = "select * from Locations where id = {}".format(location_id)
+        cur.execute(sql2)
         location = cur.fetchone()
         cur.close()
         conn.close()
+
+        location["visit_count"] = len(visits)
 
         if location["visit_count"] < 1:
             message = "⚠️この聖地は未訪問です"
@@ -173,7 +215,7 @@ def checkin(location_id, with_photo):
             conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
-            sql = "update Visits set photo = '{}', visit_count = visit_count + 1, last_visit = current_timestamp where username = '{}' and location_id = {};".format(photo, username, location_id)
+            sql = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(username, location_id, photo)
             cur.execute(sql)
             conn.commit()
             cur.close()
@@ -216,68 +258,6 @@ def lyrics():
 
         return render_template("lyrics.html", username=username)
 
-@app.route("/create", methods=["GET", "POST"])
-#@login_required
-def create():
-    if request.method == "POST":
-        title = request.form.get("title")
-
-        body = request.form.get("body")
-        dbname = "main.db"
-        conn = sqlite3.connect(dbname)
-        cur = conn.cursor()
-        sql = "insert into Blog (title, body) values ('{}', '{}');".format(title, body)
-        cur.execute(sql)
-        conn.commit()
-        cur.close()
-        conn.close()
-
-        return redirect(url_for("main"))
-    else:
-        return render_template("create.html")
-
-@app.route("/update/<int:id>", methods=["GET", "POST"])
-#@login_required
-def update(id):
-    dbname = "main.db"
-    conn = sqlite3.connect(dbname)
-    conn.row_factory = dict_factory
-    cur = conn.cursor()
-
-    if request.method == "POST":
-        title = request.form.get("title")
-        body = request.form.get("body")
-
-        sql = "update Blog set title = '{}', body = '{}' where id = {};".format(title, body, id)
-        cur.execute(sql)
-        conn.commit()
-        cur.close()
-        conn.close()
-
-        return redirect(url_for("main"))
-    else:
-        sql = "select * from Blog  where id = {};".format(id)
-        cur.execute(sql)
-        article = cur.fetchone()
-        cur.close()
-        conn.close()
-
-        return render_template("update.html", article=article)
-
-@app.route("/delete/<int:id>", methods=["GET"])
-#@login_required
-def delete(id):
-    dbname = "main.db"
-    conn = sqlite3.connect(dbname)
-    cur = conn.cursor()
-    sql = "delete from Blog where id = {};".format(id)
-    cur.execute(sql)
-    conn.commit()
-    cur.close()
-    conn.close()
-
-    return redirect(url_for("main"))
-
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
@@ -319,16 +299,16 @@ def signup():
                 cur.close()
                 conn.close()
             else:
-                sql2 = "select id from Locations;"
-                cur.execute(sql2)
-                locations = cur.fetchall()
+                # sql2 = "select id from Locations;"
+                # cur.execute(sql2)
+                # locations = cur.fetchall()
         
-                for location in locations:        
-                    sql3 = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(username, location["id"], "/static/tmp/no_image.jpg")
-                    try:
-                        cur.execute(sql3)
-                    except sqlite3.IntegrityError:
-                        pass
+                # for location in locations:        
+                #     sql3 = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(username, location["id"], "/static/tmp/no_image.jpg")
+                #     try:
+                #         cur.execute(sql3)
+                #     except sqlite3.IntegrityError:
+                #         pass
 
                 conn.commit()
                 cur.close()
@@ -379,8 +359,46 @@ def login():
             return render_template("login.html")
 
 @app.route("/config", methods=["GET", "POST"])
+#@login_required
 def config():
-    return "<h1>まだ何もないよ！</h1>"
+    if User.name:
+        current_username = User.name
+        user = User(current_username)
+        user_id = str(user.get_id()).zfill(5)
+    else:
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        new_username = request.form.get("username")
+
+        result = "<span class='text-danger'>*</span> "
+        username_pattern = re.compile(r'^(?!.*(\'|\s)).*$')
+
+        dbname = "main.db"
+        conn = sqlite3.connect(dbname)
+        cur = conn.cursor()
+        sqls = [
+            "update Users set name = '{}' where name = '{}';".format(new_username, current_username),
+            "update Visits set username = '{}' where username = '{}';".format(new_username, current_username)
+        ]
+
+        if not new_username or not username_pattern.match(new_username):
+            result += "ユーザ名にシングルクオーテーション (') および空白文字は使用できません"
+            username = current_username
+        else:
+            for sql in sqls:
+                cur.execute(sql)
+            conn.commit()
+            cur.close()
+            conn.close()
+
+            result = "<span class='text-success'>*</span> ユーザ名を変更しました"
+            User.name = new_username
+            user = User(new_username)
+            username = new_username
+        return render_template("config.html", user_id=user_id, username=username, result=result)
+    else:
+        username = current_username
+    return render_template("config.html", user_id=user_id, username=username)
 
 @app.route("/logout")
 #@login_required
