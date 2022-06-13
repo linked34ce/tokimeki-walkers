@@ -17,13 +17,18 @@
                         <input id="input-username" type="text" name="username" value="{{ username }}" class="form-control" disabled>
                         <p class="form-instruction my-1">ユーザ名は一意である必要があります<br>⚠️シングルクオーテーション (') と空白文字は使用できません</p>
                         <button id="change-username" type="button" class="btn btn-sm btn-primary">変更</button>
-                        <button id="confirm-username" type="submit" class="btn btn-sm btn-success" style="display: none;">確定</button>
+                        <button id="confirm-username" type="submit" href="{{ url_for('config', path='username') }}" class="btn btn-sm btn-success" style="display: none;">確定</button>
                         <button id="cancel-username" type="button" class="btn btn-sm btn-danger ms-1" style="display: none;">取消</button>        
                     </div>
                     <div class="mb-4">
                         <label>プロフィール (任意)</label>
-                        <textarea type="text" name="profile" value="{{ profile }}" class="form-control"></textarea>
+                        <textarea id="input-profile" rows="3" name="profile" class="form-control" disabled>{{ profile }}</textarea>
+                        <p class="form-instruction my-1">⚠️シングルクオーテーション (') は使用できません</p>
+                        <button id="change-profile" type="button" class="btn btn-sm btn-primary mt-2">変更</button>
+                        <button id="confirm-profile" type="submit" href="{{ url_for('config', path='profile') }}" class="btn btn-sm btn-success mt-2" style="display: none;">確定</button>
+                        <button id="cancel-profile" type="button" class="btn btn-sm btn-danger mt-2 ms-1" style="display: none;">取消</button>  
                     </div>
+                    <input id="submit" style="display: none;">
                 </form>
             </div>
         </div>

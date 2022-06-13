@@ -1,4 +1,5 @@
 import os
+import profile
 import ssl
 import re
 from unittest import result
@@ -299,17 +300,6 @@ def signup():
                 cur.close()
                 conn.close()
             else:
-                # sql2 = "select id from Locations;"
-                # cur.execute(sql2)
-                # locations = cur.fetchall()
-        
-                # for location in locations:        
-                #     sql3 = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(username, location["id"], "/static/tmp/no_image.jpg")
-                #     try:
-                #         cur.execute(sql3)
-                #     except sqlite3.IntegrityError:
-                #         pass
-
                 conn.commit()
                 cur.close()
                 conn.close()
@@ -358,47 +348,70 @@ def login():
         else:
             return render_template("login.html")
 
-@app.route("/config", methods=["GET", "POST"])
+@app.route("/config/<string:path>", methods=["GET", "POST"])
 #@login_required
-def config():
+def config(path):
     if User.name:
         current_username = User.name
         user = User(current_username)
         user_id = str(user.get_id()).zfill(5)
     else:
         return redirect(url_for("login"))
+
+    username = current_username
+    dbname = "main.db"
+    conn = sqlite3.connect(dbname)
+    cur = conn.cursor()
+    sql = "select profile from Users where name = '{}';".format(username)
+    cur.execute(sql)
+    profile = cur.fetchone()[0]
+    result = ""
+
     if request.method == "POST":
-        new_username = request.form.get("username")
+        if request.form.get("username"):
+            new_username = request.form.get("username")
+            result = "<span class='text-danger'>*</span> "
+            username_pattern = re.compile(r'^(?!.*(\'|\s)).*$')
 
-        result = "<span class='text-danger'>*</span> "
-        username_pattern = re.compile(r'^(?!.*(\'|\s)).*$')
+            sqls = [
+                "update Users set name = '{}' where name = '{}';".format(new_username, current_username),
+                "update Visits set username = '{}' where username = '{}';".format(new_username, current_username)
+            ]
 
-        dbname = "main.db"
-        conn = sqlite3.connect(dbname)
-        cur = conn.cursor()
-        sqls = [
-            "update Users set name = '{}' where name = '{}';".format(new_username, current_username),
-            "update Visits set username = '{}' where username = '{}';".format(new_username, current_username)
-        ]
+            if not new_username or not username_pattern.match(new_username):
+                result += "ユーザ名にシングルクオーテーション (') および空白文字は使用できません"
+            else:
+                try:
+                    for sql in sqls:
+                        cur.execute(sql)
+                except sqlite3.IntegrityError:
+                    result += 'ユーザ名 "{}" はすでに使用されています'.format(new_username)
+                    cur.close()
+                    conn.close()
+                else:
+                    conn.commit()
+                    cur.close()
+                    conn.close()
 
-        if not new_username or not username_pattern.match(new_username):
-            result += "ユーザ名にシングルクオーテーション (') および空白文字は使用できません"
-            username = current_username
-        else:
-            for sql in sqls:
-                cur.execute(sql)
+                    result = "<span class='text-success'>*</span> ユーザ名を変更しました"
+                    User.name = new_username
+                    user = User(new_username)
+                    username = new_username
+            return redirect(url_for("config", path="top"))
+        elif request.form.get("profile"):
+            print("!")
+            profile = request.form.get("profile")
+            result = "<span class='text-danger'>*</span> "
+            sql = "update Users set profile = '{}' where name = '{}';".format(profile, current_username)
+            cur.execute(sql)
             conn.commit()
             cur.close()
             conn.close()
-
-            result = "<span class='text-success'>*</span> ユーザ名を変更しました"
-            User.name = new_username
-            user = User(new_username)
-            username = new_username
-        return render_template("config.html", user_id=user_id, username=username, result=result)
+            return redirect(url_for("config", path="top"))
+        else:
+            return render_template("config.html", user_id = user_id, username=username, profile=profile, result=result)
     else:
-        username = current_username
-    return render_template("config.html", user_id=user_id, username=username)
+        return render_template("config.html", user_id = user_id, username=username, profile=profile, result=result)
 
 @app.route("/logout")
 #@login_required
