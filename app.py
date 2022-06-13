@@ -29,13 +29,14 @@ class User():
 
     def __init__(self, name):
         record = None
-        username_pattern = re.compile(r'^(?!.*(\'|\s)).*$')
+        username_pattern = re.compile(r'^(?!.*(\s)).*$')
 
         if username_pattern.match(name):
             dbname = "main.db"
             conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
+            name = name.replace("'", "''")
             sql = "select * from Users where name = '{}';".format(name)
             cur.execute(sql)
             record = cur.fetchone()
@@ -89,7 +90,8 @@ def main():
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}';".format(username)
+        escaped_username =  username.replace("'", "''")
+        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}';".format(escaped_username)
         cur.execute(sql1)
         visits = cur.fetchall()
         sql2 = "select id from Locations"
@@ -125,7 +127,6 @@ def rally():
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        # sql = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}';".format(username)
         sql1 = "select * from Locations;"
         cur.execute(sql1)
         locations = cur.fetchall()
@@ -133,7 +134,8 @@ def rally():
         NO_IMG_PATH = "/static/tmp/no_image.jpg"
 
         for location in locations:
-            sql2 = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}' and location_id = '{}' order by time desc;".format(username, location["id"])
+            escaped_username =  username.replace("'", "''")
+            sql2 = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}' and location_id = '{}' order by time desc;".format(escaped_username, location["id"])
             cur.execute(sql2)
             visits = cur.fetchall()
             location["visit_count"] = len(visits)
@@ -184,7 +186,8 @@ def detail(location_id):
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and username = '{}';".format(location_id, username)
+        escaped_username =  username.replace("'", "''")
+        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and username = '{}';".format(location_id, escaped_username)
         cur.execute(sql1)
         visits = cur.fetchall()
         sql2 = "select * from Locations where id = {}".format(location_id)
@@ -216,7 +219,8 @@ def checkin(location_id, with_photo):
             conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
-            sql = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(username, location_id, photo)
+            escaped_username =  username.replace("'", "''")
+            sql = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(escaped_username, location_id, photo)
             cur.execute(sql)
             conn.commit()
             cur.close()
@@ -267,13 +271,13 @@ def signup():
         password_confirm = request.form.get("password-confirm")
 
         result = "<span class='text-danger'>*</span> "
-        username_pattern = re.compile(r'^(?!.*(\'|\s)).*$')
+        username_pattern = re.compile(r'^(?!.*(\s)).*$')
         password_pattern = re.compile(r'^[a-zA-Z0-9]+$')
 
         if not username or not password or not password_confirm:
             result += "すべての項目を入力してください"
         elif not username_pattern.match(username):
-            result += "ユーザ名にシングルクオーテーション (') および空白文字は使用できません"
+            result += "ユーザ名に空白文字は使用できません"
         elif len(password) < 8 and not password_pattern.match(password):
             result += "パスワードは8文字以上の半角英数字で入力してください"
         elif len(password) < 8:
@@ -290,12 +294,14 @@ def signup():
             conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
-            sql1 = "insert into Users (name, password) values ('{}', '{}');".format(username, password_hash)
+            escaped_username =  username.replace("'", "''")
+            sql1 = "insert into Users (name, password) values ('{}', '{}');".format(escaped_username, password_hash)
 
             try:
                 cur.execute(sql1)
             except sqlite3.IntegrityError:
-                result += 'ユーザ名 "{}" はすでに使用されています'.format(username)
+                escaped_username =  username.replace("'", "\'")
+                result += 'ユーザ名 "{}" はすでに使用されています'.format(escaped_username)
                 username = ""
                 cur.close()
                 conn.close()
@@ -333,7 +339,8 @@ def login():
         elif len(password) < 8 or not password_pattern.match(password):
             result += "パスワードは8文字以上の半角英数字です"
         elif not user.name:
-            result += 'ユーザ名 "{}" は登録されていません'.format(username)
+            escaped_username =  username.replace("'", "\'")
+            result += 'ユーザ名 "{}" は登録されていません'.format(escaped_username)
             username = ""
         elif user.password:
             if not check_password_hash(user.password, password):
@@ -348,9 +355,9 @@ def login():
         else:
             return render_template("login.html")
 
-@app.route("/config/<string:path>", methods=["GET", "POST"])
+@app.route("/config", methods=["GET", "POST"])
 #@login_required
-def config(path):
+def config():
     if User.name:
         current_username = User.name
         user = User(current_username)
@@ -362,20 +369,26 @@ def config(path):
     dbname = "main.db"
     conn = sqlite3.connect(dbname)
     cur = conn.cursor()
-    sql = "select profile from Users where name = '{}';".format(username)
+    escaped_username =  username.replace("'", "''")
+    sql = "select profile from Users where name = '{}';".format(escaped_username)
     cur.execute(sql)
     profile = cur.fetchone()[0]
+    if not profile:
+        profile = ""
     result = ""
 
     if request.method == "POST":
         if request.form.get("username"):
             new_username = request.form.get("username")
             result = "<span class='text-danger'>*</span> "
-            username_pattern = re.compile(r'^(?!.*(\'|\s)).*$')
+            username_pattern = re.compile(r'^(?!.*(\s)).*$')
+
+            escaped_current_username =  current_username.replace("'", "''")
+            escaped_new_username =  new_username.replace("'", "''")
 
             sqls = [
-                "update Users set name = '{}' where name = '{}';".format(new_username, current_username),
-                "update Visits set username = '{}' where username = '{}';".format(new_username, current_username)
+                "update Users set name = '{}' where name = '{}';".format(escaped_new_username, escaped_current_username),
+                "update Visits set username = '{}' where username = '{}';".format(escaped_new_username, escaped_current_username)
             ]
 
             if not new_username or not username_pattern.match(new_username):
@@ -385,7 +398,8 @@ def config(path):
                     for sql in sqls:
                         cur.execute(sql)
                 except sqlite3.IntegrityError:
-                    result += 'ユーザ名 "{}" はすでに使用されています'.format(new_username)
+                    escaped_new_username =  new_username.replace("'", "\'")
+                    result += 'ユーザ名 "{}" はすでに使用されています'.format(escaped_new_username)
                     cur.close()
                     conn.close()
                 else:
@@ -397,17 +411,19 @@ def config(path):
                     User.name = new_username
                     user = User(new_username)
                     username = new_username
-            return redirect(url_for("config", path="top"))
+            return redirect(url_for("config"))
         elif request.form.get("profile"):
-            print("!")
             profile = request.form.get("profile")
             result = "<span class='text-danger'>*</span> "
-            sql = "update Users set profile = '{}' where name = '{}';".format(profile, current_username)
+            profile = profile.replace("'", "''")
+
+            escaped_current_username =  current_username.replace("'", "''")
+            sql = "update Users set profile = '{}' where name = '{}';".format(profile, escaped_current_username)
             cur.execute(sql)
             conn.commit()
             cur.close()
             conn.close()
-            return redirect(url_for("config", path="top"))
+            return redirect(url_for("config"))
         else:
             return render_template("config.html", user_id = user_id, username=username, profile=profile, result=result)
     else:
