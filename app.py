@@ -1,17 +1,11 @@
 import os
-import profile
-import ssl
 import re
-from unittest import result
-import requests
 from flask import Flask
 from flask import render_template, request, redirect, url_for
 from flask_login import LoginManager, login_user, logout_user, login_required
 from matplotlib import use
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
-from datetime import datetime
-# import pytz
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.urandom(24)
@@ -154,23 +148,6 @@ def rally():
         cur.close()
         conn.close()
 
-        # for visit in visits:
-        #     location = {}
-        #     if location_id != visit["location_id"]:
-        #         print(1)
-        #         location["id"] = visit["location_id"]
-        #         location["name"] = visit["name"]
-        #         location_id = visit["location_id"]
-        #         num_of_visits += 1
-
-        #     if num_of_visits > 0:
-        #         location["visited"] = "✅訪問済"
-        #     else:
-        #         location["visited"] = "⚠️未訪問"
-        #         location["share_button"] = " disabled"
-        #     locations.append(location)
-        #     print(location)
-
         return render_template("rally.html", username=username, locations=locations)
 
 @app.route("/rally/<int:location_id>", methods=["GET"])
@@ -187,7 +164,7 @@ def detail(location_id):
         conn.row_factory = dict_factory
         cur = conn.cursor()
         escaped_username =  username.replace("'", "''")
-        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and username = '{}';".format(location_id, escaped_username)
+        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and username = '{}' order by time desc;".format(location_id, escaped_username)
         cur.execute(sql1)
         visits = cur.fetchall()
         sql2 = "select * from Locations where id = {}".format(location_id)
@@ -197,7 +174,9 @@ def detail(location_id):
         conn.close()
 
         location["visit_count"] = len(visits)
-
+        if visits:
+            location["last_visit"] = visits[0]["time"]
+            
         if location["visit_count"] < 1:
             message = "⚠️この聖地は未訪問です"
         else:
@@ -382,6 +361,9 @@ def config():
 
             escaped_current_username =  current_username.replace("'", "''")
             escaped_new_username =  new_username.replace("'", "''")
+            profile = request.form.get("profile")
+            if not profile:
+                profile = ""
 
             sqls = [
                 "update Users set name = '{}' where name = '{}';".format(escaped_new_username, escaped_current_username),
@@ -389,7 +371,7 @@ def config():
             ]
 
             if not new_username or not username_pattern.match(new_username):
-                result += "ユーザ名にシングルクオーテーション (') および空白文字は使用できません"
+                result += "ユーザ名に空白文字は使用できません"
             else:
                 try:
                     for sql in sqls:

@@ -9,8 +9,8 @@
 
 <div class="my-3">
     <div>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#withPhoto" onclick="checkin(1, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }}, {{ location.visit_count }}, '{{ location.last_visit }}')">写真ありでチェックイン</button>
-        <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#withPhoto" onclick="checkin(0, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }}, {{ location.visit_count }}, '{{ location.last_visit }}')">写真なしでチェックイン</button>
+        <button type="button" class="btn btn-primary my-1" data-bs-toggle="modal" data-bs-target="#withPhoto" onclick="checkin(1, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }}, {{ location.visit_count }}, '{{ location.last_visit }}')">写真ありでチェックイン</button>
+        <button type="button" class="btn btn-dark my-1" data-bs-toggle="modal" data-bs-target="#withPhoto" onclick="checkin(0, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }}, {{ location.visit_count }}, '{{ location.last_visit }}')">写真なしでチェックイン</button>
 
         <div class="modal fade" id="withPhoto" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalLabel" aria-hidden="true">
             <div class="modal-dialog">
