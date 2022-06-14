@@ -373,9 +373,6 @@ def config():
     sql = "select profile from Users where name = '{}';".format(escaped_username)
     cur.execute(sql)
     profile = cur.fetchone()[0]
-    if not profile:
-        profile = ""
-    result = ""
 
     if request.method == "POST":
         if request.form.get("username"):
@@ -411,23 +408,31 @@ def config():
                     User.name = new_username
                     user = User(new_username)
                     username = new_username
-            return redirect(url_for("config"))
         elif request.form.get("profile"):
             profile = request.form.get("profile")
-            result = "<span class='text-danger'>*</span> "
-            profile = profile.replace("'", "''")
-
+            escaped_profile = profile.replace("'", "''")
             escaped_current_username =  current_username.replace("'", "''")
-            sql = "update Users set profile = '{}' where name = '{}';".format(profile, escaped_current_username)
+
+            sql = "update Users set profile = '{}' where name = '{}';".format(escaped_profile, escaped_current_username)
             cur.execute(sql)
             conn.commit()
             cur.close()
             conn.close()
-            return redirect(url_for("config"))
-        else:
-            return render_template("config.html", user_id = user_id, username=username, profile=profile, result=result)
+            result = "<span class='text-success'>*</span> プロフィールを変更しました"
+        elif not request.form.get("profile"):
+            escaped_current_username =  current_username.replace("'", "''")
+            sql = "update Users set profile = null where name = '{}';".format(escaped_current_username)
+            cur.execute(sql)
+            conn.commit()
+            cur.close()
+            conn.close()
+            profile = ""
+            result = "<span class='text-success'>*</span> プロフィールを変更しました"
+        return render_template("config.html", user_id = user_id, username=username, result=result, profile=profile)
     else:
-        return render_template("config.html", user_id = user_id, username=username, profile=profile, result=result)
+        if not profile:
+            profile = ""
+        return render_template("config.html", user_id = user_id, username=username, profile=profile)
 
 @app.route("/logout")
 #@login_required
