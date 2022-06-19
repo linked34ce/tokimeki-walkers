@@ -214,17 +214,7 @@ def checkin(location_id, with_photo):
 def upload(location_id):
     if request.method == "POST":
         if User.name:
-            username=User.name
-            dbname = "main.db"
-            conn = sqlite3.connect(dbname)
-            conn.row_factory = dict_factory
-            cur = conn.cursor()
-            escaped_username =  username.replace("'", "''")
-            sql = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(escaped_username, location_id, photo)
-            cur.execute(sql)
-            conn.commit()
-            cur.close()
-            conn.close()
+            pass
         else:
             return redirect(url_for("login"))
     else:
