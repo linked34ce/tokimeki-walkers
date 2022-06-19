@@ -37,6 +37,10 @@ function checkin(withPhoto, locationId, targetLatitude, targetLongitude, visitCo
     });
 }
 
+function reload(withPhoto, locationId) {
+    location.href = "/checkin/" + locationId + "/" + withPhoto;
+}
+
 const fileInput = document.getElementById("upload-photo");
 
 fileInput.addEventListener("change", () => {
@@ -52,17 +56,24 @@ fileInput.addEventListener("change", () => {
 
     if (file.size > LIMIT) {
         document.getElementById("checkin-with-photo").style.display = "none";
-        document.getElementById("uploadable").innerHTML = "<span class='text-danger'>*</span> ファイルサイズが大きすぎます<br>&nbsp;&nbsp;&nbsp;(10MB以下にしてください)"
+        document.getElementById("uploadable").innerHTML = "<span class='text-danger'>*</span> ファイルサイズが大きすぎます<br>&nbsp;&nbsp;&nbsp;(10MB以下にしてください)";
+        document.getElementById("preview").innerHTML = "";
     } else {
         document.getElementById("checkin-with-photo").style.display = "block";
-        document.getElementById("uploadable").innerHTML = "<span class='text-success'>*</span> この画像はアップロード可能です"
-
+        document.getElementById("uploadable").innerHTML = "<span class='text-success'>*</span> この画像はアップロード可能です";
+        previewFile(file);
     }
-
 });
 
-function handleFileSelect() {}
+function previewFile(file) {
+    const preview = document.getElementById("preview");
+    const reader = new FileReader();
 
-function reload(withPhoto, locationId) {
-    location.href = "/checkin/" + locationId + "/" + withPhoto;
+    reader.onload = function(e) {
+        preview.innerHTML = "";
+        const imageUrl = e.target.result;
+        preview.innerHTML = "<img src=" + imageUrl + " style='width: 100%;'></img>";
+    }
+
+    reader.readAsDataURL(file);
 }

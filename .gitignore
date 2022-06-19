@@ -1,3 +1,4 @@
 __pycache__/
-privkey.pem
-fullchain.pem
+*.pem
+client-secrets.json
+gdrive*.py

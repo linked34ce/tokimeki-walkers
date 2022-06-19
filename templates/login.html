@@ -11,11 +11,11 @@
                 <form method="POST">
                     <div class="mb-4">
                         <label>ユーザ名</label>
-                        <input type="text" name="username" value="{{ username }}" class="form-control">
+                        <input type="text" name="username" value="{{ username }}" autocomplete="username" class="form-control">
                     </div>
                     <div class="mb-4">
                         <label>パスワード</label>
-                        <input type="password" name="password" class="form-control">
+                        <input type="password" name="password" autocomplete="current-password" class="form-control">
                     </div>
                     <div class="text-center mb-3">
                         <button type="submit" class="btn btn-primary">ログイン</button>
