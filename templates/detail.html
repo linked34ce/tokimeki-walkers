@@ -9,16 +9,48 @@
 
 <div class="my-3">
     <div>
-        <button type="button" class="btn btn-primary my-1" data-bs-toggle="modal" data-bs-target="#withPhoto" onclick="checkin(1, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }}, {{ location.visit_count }}, '{{ location.last_visit }}')">写真ありでチェックイン</button>
-        <button type="button" class="btn btn-dark my-1" data-bs-toggle="modal" data-bs-target="#withPhoto" onclick="checkin(0, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }}, {{ location.visit_count }}, '{{ location.last_visit }}')">写真なしでチェックイン</button>
+        <button type="button" class="btn btn-primary my-1" data-bs-toggle="modal" data-bs-target="#with-photo">写真ありでチェックイン</button>
+        <button type="button" class="btn btn-dark my-1" data-bs-toggle="modal" data-bs-target="#without-photo">写真なしでチェックイン</button>
 
-        <div class="modal fade" id="withPhoto" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal fade" id="with-photo" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-body">
-                        <p id="result">{{ result | default("チェックイン中…") | safe }}</p>
+                        {# <form id="upload-form" action="/upload/{{ location.id }}" method="post" enctype="multipart/form-data"> #}<div>
+                            <h4>画像のアップロード</h4>
+                            <label for="upload-photo" class="form-label form-instruction">
+                                JPG形式 / PNG形式の画像に対応しています<br>ファイルサイズの上限は10MBです
+                            </label>
+                            <input id="upload-photo" type="file" accept="image/*" class="form-control" required>
+                            <p id="uploadable" class="mt-3"></p>
+                            <button id="checkin-with-photo" class="btn btn-primary mt-3" style="display: none;">チェックイン</button>
+                            <p id="message-with-photo" class="mt-3" style="display: none;">「{{ location.name }}」にチェックインしますか？</p>
+                        {# </form> #}</div>
                     </div>
-                    <div id="close" class="modal-footer"><button class="btn btn-secondary disabled">とじる</button></div>
+                    <div class="modal-footer">
+                         <div id="confirm-buttons-with-photo" style="display: none;">
+                            <button class="btn btn-success" onclick="checkin(1, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }}, {{ location.visit_count }}, '{{ location.last_visit }}')">はい</button>
+                            <button class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+                        </div>
+                        <button id="close-with-photo" class="btn btn-secondary" data-bs-dismiss="modal">とじる</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="without-photo" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <p id="message-without-photo">「{{ location.name }}」にチェックインしますか？</p>
+                    </div>
+                    <div class="modal-footer">
+                        <div id="confirm-buttons-without-photo">
+                            <button class="btn btn-success" onclick="checkin(0, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }}, {{ location.visit_count }}, '{{ location.last_visit }}')">はい</button>
+                            <button class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+                        </div>
+                            <button id="close-without-photo" class="btn btn-secondary disabled" data-bs-dismiss="modal" style="display: none;">とじる</button>
+                    </div>
                 </div>
             </div>
         </div>

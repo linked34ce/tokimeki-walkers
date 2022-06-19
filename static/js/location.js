@@ -1,21 +1,67 @@
+document.getElementById("checkin-with-photo").addEventListener("click", () => {
+    document.getElementById("message-with-photo").style.display = "block";
+    document.getElementById("confirm-buttons-with-photo").style.display = "block";
+    document.getElementById("uploadable").style.display = "none";
+    document.getElementById("checkin-with-photo").style.display = "none";
+    document.getElementById("close-with-photo").style.display = "none";
+});
+
 function checkin(withPhoto, locationId, targetLatitude, targetLongitude, visitCount, lastVisit) {
     const LIMIT = 60000; // 1日: 86400000
     const JST = 32400000;
     const THRESHOLD = 0.005;
+
+    let classSuffix = "";
+
+    if (withPhoto) {
+        classSuffix = "-with-photo";
+    } else {
+        classSuffix = "-without-photo";
+    }
+
+    document.getElementById("message" + classSuffix).innerHTML = "チェックイン中…";
+    document.getElementById("confirm-buttons" + classSuffix).style.display = "none";
+    document.getElementById("close" + classSuffix).style.display = "block";
+
     navigator.geolocation.getCurrentPosition(pos => {
         let visitDate = new Date(lastVisit);
+        document.getElementById("close" + classSuffix).className = "btn btn-secondary";
         if (Math.abs(targetLatitude - pos.coords.latitude) >= THRESHOLD || Math.abs(targetLongitude - pos.coords.longitude) >= THRESHOLD) {
-            document.getElementById("result").innerHTML = "<span class='text-danger'>*</span> チェックインに失敗しました<br>&nbsp;&nbsp;&nbsp;(距離が遠すぎます)";
-            document.getElementById("close").innerHTML = "<button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>とじる</button>";
+            document.getElementById("message" + classSuffix).innerHTML = "<span class='text-danger'>*</span> チェックインに失敗しました<br>&nbsp;&nbsp;&nbsp;(距離が遠すぎます)";
         } else if (Date.now() - visitDate.getTime() - JST < LIMIT && visitCount > 0) {
-            document.getElementById("result").innerHTML = "<span class='text-danger'>*</span> チェックインに失敗しました<br>&nbsp;&nbsp;&nbsp;(前回のチェックインから24時間が経過していません)";
-            document.getElementById("close").innerHTML = "<button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>とじる</button>";
+            document.getElementById("message" + classSuffix).innerHTML = "<span class='text-danger'>*</span> チェックインに失敗しました<br>&nbsp;&nbsp;&nbsp;(前回のチェックインから24時間が経過していません)";
         } else {
-            document.getElementById("result").innerHTML = "<span class='text-success'>*</span> チェックインに成功しました";
-            document.getElementById("close").innerHTML = "<button type='button' class='btn btn-secondary' data-bs-dismiss='modal' onclick='reload(" + withPhoto + ", " + locationId + ")'>とじる</button>";
+            document.getElementById("message" + classSuffix).innerHTML = "<span class='text-success'>*</span> チェックインに成功しました";
+            document.getElementById("close" + classSuffix).setAttribute("onclick", "reload(" + withPhoto + ", " + locationId + ")");
         }
     });
 }
+
+const fileInput = document.getElementById("upload-photo");
+
+fileInput.addEventListener("change", () => {
+    const MB = 2 ** 20;
+    const LIMIT = 10 * MB;
+    const file = fileInput.files[0];
+
+    document.getElementById("message-with-photo").style.display = "none";
+    document.getElementById("confirm-buttons-with-photo").style.display = "none";
+    document.getElementById("uploadable").style.display = "block";
+    document.getElementById("checkin-with-photo").style.display = "block";
+    document.getElementById("close-with-photo").style.display = "block";
+
+    if (file.size > LIMIT) {
+        document.getElementById("checkin-with-photo").style.display = "none";
+        document.getElementById("uploadable").innerHTML = "<span class='text-danger'>*</span> ファイルサイズが大きすぎます<br>&nbsp;&nbsp;&nbsp;(10MB以下にしてください)"
+    } else {
+        document.getElementById("checkin-with-photo").style.display = "block";
+        document.getElementById("uploadable").innerHTML = "<span class='text-success'>*</span> この画像はアップロード可能です"
+
+    }
+
+});
+
+function handleFileSelect() {}
 
 function reload(withPhoto, locationId) {
     location.href = "/checkin/" + locationId + "/" + withPhoto;

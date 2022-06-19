@@ -17,7 +17,7 @@
                 <a href="/rally/{{ location.id }}" role="button" class="btn btn-primary mb-2 fs-5" style="width: 106px;">詳細</a><br>
                 <a role="button" class="btn btn-info btn-sm text-light mb-4{{ location.share_button | default('') }}" href="https://twitter.com/share?url=http://127.0.0.1:5000/&text=「{{ location.name }}」を訪問しました！&hashtags=TOKIMEKI_Walkers,虹ヶ咲,聖地巡礼" target="_blank" rel="nofollow">Tweet</a>
                 <button type="button" role="button" class="btn btn-success btn-sm mb-4{{ location.share_button | default('') }}" data-bs-toggle="modal" data-bs-target="#modal{{ location.id }}" data-bs-whatever="ダイバーシティ 東京プラザ">投稿</button>
-                <div class="modal fade" id="modal{{ location.id }}" tabindex="-1" aria-labelledby="modalLabel{{ location.id }}" aria-hidden="true">
+                <div class="modal fade" id="modal{{ location.id }}" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalLabel{{ location.id }}" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
