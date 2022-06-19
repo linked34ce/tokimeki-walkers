@@ -2,3 +2,4 @@ __pycache__/
 *.pem
 client-secrets.json
 gdrive*.py
+credentials.txt
