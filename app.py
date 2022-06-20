@@ -168,18 +168,21 @@ def post(location_id):
             return redirect(url_for("login"))
         
         content = request.form.get("content" + str(location_id))
+        if not content:
+            content = ""
         dbname = "main.db"
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
 
         escaped_username =  username.replace("'", "''")
+        escaped_content =  content.replace("'", "''")
         sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}' and location_id = '{}' order by time desc;".format(escaped_username, location_id)
         cur.execute(sql1)
         latest_visit = cur.fetchone()
         photo = latest_visit["photo"]
 
-        sql2 = "insert into Posts (userid, content, photo) values ('{}', '{}', '{}');".format(userid, content, photo)
+        sql2 = "insert into Posts (userid, content, photo) values ('{}', '{}', '{}');".format(userid, escaped_content, photo)
         cur.execute(sql2)
         conn.commit()
         cur.close()
@@ -222,6 +225,47 @@ def detail(location_id):
             message = "✅この聖地は{}回訪問済みです".format(location["visit_count"])
 
         return render_template("detail.html", username=username, location=location, message=message)
+
+@app.route("/posts/<int:page>", methods=["GET"])
+#@login_required
+def posts(page):
+    if request.method == "GET":
+        if User.name:
+            username=User.name
+        else:
+            return redirect(url_for("login"))
+        
+        dbname = "main.db"
+        conn = sqlite3.connect(dbname)
+        conn.row_factory = dict_factory
+        cur = conn.cursor()
+        sql1 = "select * from Posts order by time desc"
+        cur.execute(sql1)
+        all_posts = cur.fetchall()
+
+        LIMIT = 20
+        num_of_posts = len(all_posts)
+        num_of_pages = num_of_posts // LIMIT + 1
+        lower_limit = LIMIT * (page - 1)
+        if page == num_of_pages:
+            upper_limit = num_of_posts
+        else:
+            upper_limit = LIMIT * page
+        posts = all_posts[lower_limit:upper_limit]
+
+        for post in posts:
+            sql3 = "select name, profile from Users where id = {};".format(post["userid"])
+            cur.execute(sql3)
+            poster = cur.fetchone()
+            post["username"] = poster["name"]
+            if poster["profile"]:
+                post["profile"] = poster["profile"]
+            else:
+                post["profile"] = "(プロフィール未設定)"
+        cur.close()
+        conn.close()
+
+        return render_template("posts.html", posts=posts, page=page, num_of_pages=num_of_pages)
 
 @app.route("/checkinWithoutPhoto/<int:location_id>/", methods=["GET", "POST"])
 #@login_required
@@ -406,11 +450,12 @@ def config():
     username = current_username
     dbname = "main.db"
     conn = sqlite3.connect(dbname)
+    conn.row_factory = dict_factory
     cur = conn.cursor()
     escaped_username =  username.replace("'", "''")
     sql = "select profile from Users where name = '{}';".format(escaped_username)
     cur.execute(sql)
-    profile = cur.fetchone()[0]
+    profile = cur.fetchone()["profile"]
 
     if request.method == "POST":
         if request.form.get("username"):
@@ -442,13 +487,20 @@ def config():
                     conn.close()
                 else:
                     conn.commit()
-                    cur.close()
-                    conn.close()
 
                     result = "<span class='text-success'>*</span> ユーザ名を変更しました"
                     User.name = new_username
                     user = User(new_username)
                     username = new_username
+
+                    escaped_username =  username.replace("'", "''")
+                    sql = "select profile from Users where name = '{}';".format(escaped_username)
+                    cur.execute(sql)
+                    profile = cur.fetchone()["profile"]
+
+                    cur.close()
+                    conn.close()
+
         elif request.form.get("profile"):
             profile = request.form.get("profile")
             escaped_profile = profile.replace("'", "''")

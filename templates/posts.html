@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="mb-3">みんなの投稿</h1>
+<a href="{{ url_for('main') }}" role="button" class="btn btn-secondary">もどる</a>
+
+<div class="my-3">
+    {% for post in posts %}
+    <div class="card my-3 border border-2 border-dark">
+        <div class="card-header">
+            <h4><button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#modal{{ post.id }}">{{ post.username }}</button></h4>
+            <p>({{ post.time }})</p>
+        </div>
+        <div class="card-body">
+            <p>{{ post.content | replace("\r", "<br>" | safe) }}</p>
+            <img src="{{ post.photo }}" width="150">
+        </div>
+    </div>
+
+    <div class="modal fade" id="modal{{ post.id }}" tabindex="-1" aria-labelledby="modalLabel{{ post.id }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalLabel{{ post.id }}">{{ post.username }}さんのプロフィール</h5>
+            </div>
+            <div class="modal-body">
+                {{ post.profile | replace("\r", "<br>" | safe) }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">とじる</button>
+            </div>
+        </div>
+    </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if page > 1 %}
+<a href="./{{ page - 1 }}" role="button" class="btn btn-primary">前のページへ</a>
+{% endif %}
+{% if page < num_of_pages %}
+<a href="./{{ page + 1 }}" role="button" class="btn btn-primary">次のページへ</a>
+{% endif %}
+
+<br>
+<a href="{{ url_for('main') }}" role="button" class="btn btn-secondary my-3">もどる</a>
+
+{% endblock %}

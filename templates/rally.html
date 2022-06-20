@@ -4,7 +4,7 @@
 
 <h1 class="mb-3">フォトラリー</h1>
 <h3 class="my-4">{{ username }}さんの訪問記録</h3>
-<a href="/" role="button" class="btn btn-secondary">もどる</a>
+<a href="{{ url_for('main') }}" role="button" class="btn btn-secondary">もどる</a>
 
 <div class="my-3">
     {% for location in locations %}
@@ -22,7 +22,6 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="modalLabel{{ location.id }}">共有</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <form method="POST" action="/post/{{ location.id }}">
                                 <div class="modal-body">
