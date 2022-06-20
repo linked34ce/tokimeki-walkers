@@ -24,22 +24,22 @@
                                 <h5 class="modal-title" id="modalLabel{{ location.id }}">共有</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
-                            <div class="modal-body">
-                                <form>
-                                <div class="mb-3">
-                                    <label for="message-text" class="col-form-label">内容:</label>
-                                    <textarea class="form-control" id="message-text"></textarea>
+                            <form method="POST" action="/post/{{ location.id }}">
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label class="col-form-label">内容:</label>
+                                        <textarea name="content{{ location.id }}" class="form-control"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <p class="col-form-label">画像:</p>
+                                        <img src="{{ location.photo }}" height="150" class="border border-1 border-dark">
+                                    </div>
                                 </div>
-                                <div class="mb-3">
-                                    <p for="message-text" class="">画像:</p>
-                                    <img src="{{ location.photo }}" height="150" class="border border-1 border-dark">
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">投稿する</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">とじる</button>
                                 </div>
-                                </form>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">とじる</button>
-                                <button type="button" class="btn btn-primary">投稿する</button>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>

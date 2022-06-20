@@ -156,6 +156,39 @@ def rally():
 
         return render_template("rally.html", username=username, locations=locations)
 
+@app.route("/post/<int:location_id>", methods=["POST"])
+#@login_required
+def post(location_id):
+    if request.method == "POST":
+        if User.name:
+            username = User.name
+            user = User(username)
+            userid = user.get_id()
+        else:
+            return redirect(url_for("login"))
+        
+        content = request.form.get("content" + str(location_id))
+        dbname = "main.db"
+        conn = sqlite3.connect(dbname)
+        conn.row_factory = dict_factory
+        cur = conn.cursor()
+
+        escaped_username =  username.replace("'", "''")
+        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}' and location_id = '{}' order by time desc;".format(escaped_username, location_id)
+        cur.execute(sql1)
+        latest_visit = cur.fetchone()
+        photo = latest_visit["photo"]
+
+        sql2 = "insert into Posts (userid, content, photo) values ('{}', '{}', '{}');".format(userid, content, photo)
+        cur.execute(sql2)
+        conn.commit()
+        cur.close()
+        conn.close()
+    
+        return redirect(url_for("rally"))
+    else:
+        return redirect(url_for("login"))
+    
 @app.route("/rally/<int:location_id>", methods=["GET"])
 #@login_required
 def detail(location_id):
@@ -190,7 +223,7 @@ def detail(location_id):
 
         return render_template("detail.html", username=username, location=location, message=message)
 
-@app.route("/checkinWithoutPhoto/<int:location_id>/")
+@app.route("/checkinWithoutPhoto/<int:location_id>/", methods=["GET", "POST"])
 #@login_required
 def checkinWithoutPhoto(location_id):
     if request.method == "GET":
