@@ -15,27 +15,27 @@
         <div class="modal fade" id="with-photo" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-body">
-                        {# <form id="upload-form" action="/upload/{{ location.id }}" method="post" enctype="multipart/form-data"> #}<div>
+                    <form id="upload-form" action="/upload/{{ location.id }}" method="post" enctype="multipart/form-data">
+                        <div class="modal-body">
                             <h4>画像のアップロード</h4>
                             <label for="upload-photo" class="form-label form-instruction">
                                 JPG形式 / PNG形式の画像に対応しています<br>ファイルサイズの上限は10MBです
                             </label>
-                            <input id="upload-photo" type="file" accept="image/*" class="form-control" required>
+                            <input id="upload-photo" name="photo" type="file" accept="image/*" class="form-control" required>
                             <p id="uploadable" class="mt-3"></p>
                             <div id="preview" class="mt-3"></div>
-                            <button id="checkin-with-photo" class="btn btn-primary mt-3" style="display: none;">チェックイン</button>
-                            <p id="message-with-photo" class="mt-3" style="display: none;">「{{ location.name }}」にチェックインしますか？</p>
-                        {# </form> #}</div>
-                    </div>
-                    <div class="modal-footer">
-                         <div id="confirm-buttons-with-photo" style="display: none;">
-                            <button class="btn btn-success" onclick="checkin(1, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }}, {{ location.visit_count }}, '{{ location.last_visit }}')">はい</button>
-                            <button class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+                            <button id="checkin-with-photo" type="button" class="btn btn-primary mt-3" style="display: none;">チェックイン</button>
+                            <p id="message-with-photo" class="mt-3" style="display: none;">「{{ location.name }}」にチェックインしますか？</p>         
                         </div>
-                        <button id="close-with-photo" class="btn btn-secondary" data-bs-dismiss="modal">とじる</button>
-                    </div>
-                </div>
+                        <div class="modal-footer">
+                            <div id="confirm-buttons-with-photo" style="display: none;">
+                                <button type="button" class="btn btn-success" onclick="checkin(1, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }}, {{ location.visit_count }}, '{{ location.last_visit }}')">はい</button>
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+                            </div>
+                            <button id="close-with-photo" type="button" class="btn btn-secondary" data-bs-dismiss="modal">とじる</button>
+                        </div>
+                    </form>
+                </div>       
             </div>
         </div>
 

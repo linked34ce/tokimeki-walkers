@@ -38,15 +38,19 @@ function checkin(withPhoto, locationId, targetLatitude, targetLongitude, visitCo
 }
 
 function reload(withPhoto, locationId) {
-    location.href = "/checkin/" + locationId + "/" + withPhoto;
+    if (withPhoto) {
+        document.getElementById("upload-form").submit();
+    } else {
+        location.href = "/checkinWithoutPhoto/" + locationId + "/";
+    }
 }
 
-const fileInput = document.getElementById("upload-photo");
+let fileInput = document.getElementById("upload-photo");
 
 fileInput.addEventListener("change", () => {
     const MB = 2 ** 20;
     const LIMIT = 10 * MB;
-    const file = fileInput.files[0];
+    let file = fileInput.files[0];
 
     document.getElementById("message-with-photo").style.display = "none";
     document.getElementById("confirm-buttons-with-photo").style.display = "none";
@@ -66,8 +70,8 @@ fileInput.addEventListener("change", () => {
 });
 
 function previewFile(file) {
-    const preview = document.getElementById("preview");
-    const reader = new FileReader();
+    let preview = document.getElementById("preview");
+    let reader = new FileReader();
 
     reader.onload = function(e) {
         preview.innerHTML = "";

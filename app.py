@@ -1,14 +1,20 @@
 import os
 import re
+from datetime import datetime
 from flask import Flask
 from flask import render_template, request, redirect, url_for
 from flask_login import LoginManager, login_user, logout_user, login_required
 from matplotlib import use
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+from flask import send_from_directory
 import sqlite3
+
+UPLOAD_FOLDER = "./static/uploads/"
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.urandom(24)
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -184,15 +190,12 @@ def detail(location_id):
 
         return render_template("detail.html", username=username, location=location, message=message)
 
-@app.route("/checkin/<int:location_id>/<int:with_photo>")
+@app.route("/checkinWithoutPhoto/<int:location_id>/")
 #@login_required
-def checkin(location_id, with_photo):
+def checkinWithoutPhoto(location_id):
     if request.method == "GET":
         if User.name:
-            if with_photo:
-                photo = "/static/tmp/divercity.jpg"
-            else:
-                photo = "/static/tmp/no_image.jpg"
+            photo = "/static/tmp/no_image.jpg"
             username=User.name
             dbname = "main.db"
             conn = sqlite3.connect(dbname)
@@ -206,19 +209,31 @@ def checkin(location_id, with_photo):
             conn.close()
         else:
             return redirect(url_for("login"))
-        
         return redirect(url_for("detail", location_id=location_id))
 
-@app.route("/upload/<int:location_id>")
+@app.route("/upload/<int:location_id>", methods=["POST"])
 #@login_required
 def upload(location_id):
     if request.method == "POST":
         if User.name:
-            pass
+            file = request.files["photo"]
+            filename = datetime.now().strftime("%Y%m%d_%H%M%S_") + secure_filename(file.filename) 
+            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+            username=User.name
+            dbname = "main.db"
+            conn = sqlite3.connect(dbname)
+            conn.row_factory = dict_factory
+            cur = conn.cursor()
+            escaped_username =  username.replace("'", "''")
+            photo = "/static/uploads/" + filename
+            sql = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(escaped_username, location_id, photo)
+            cur.execute(sql)
+            conn.commit()
+            cur.close()
+            conn.close()
         else:
             return redirect(url_for("login"))
-    else:
-        return redirect(url_for("detail", location_id=location_id))
+    return redirect(url_for("detail", location_id=location_id))
     
 @app.route("/map", methods=["GET"])
 #@login_required
