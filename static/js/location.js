@@ -24,17 +24,53 @@ function checkin(withPhoto, locationId, targetLatitude, targetLongitude, visitCo
     document.getElementById("close" + classSuffix).style.display = "block";
 
     navigator.geolocation.getCurrentPosition(pos => {
+        let distance = hubenyFormula(pos.coords.latitude, pos.coords.longitude, targetLatitude, targetLongitude);
         let visitDate = new Date(lastVisit);
         document.getElementById("close" + classSuffix).className = "btn btn-secondary";
-        if (Math.abs(targetLatitude - pos.coords.latitude) >= THRESHOLD || Math.abs(targetLongitude - pos.coords.longitude) >= THRESHOLD) {
-            document.getElementById("message" + classSuffix).innerHTML = "<span class='text-danger'>*</span> チェックインに失敗しました<br>&nbsp;&nbsp;&nbsp;(距離が遠すぎます)";
+        if (distance > 50) {
+            document.getElementById("message" + classSuffix).innerHTML = "<span class='text-danger'>*</span> チェックインに失敗しました<br>&nbsp;&nbsp;&nbsp;(距離が遠すぎます; " + Math.round(distance) + "m)";
+            document.getElementById("close" + classSuffix).setAttribute("onclick", "window.location.reload()");
         } else if (Date.now() - visitDate.getTime() - JST < LIMIT && visitCount > 0) {
             document.getElementById("message" + classSuffix).innerHTML = "<span class='text-danger'>*</span> チェックインに失敗しました<br>&nbsp;&nbsp;&nbsp;(前回のチェックインから24時間が経過していません)";
+            document.getElementById("close" + classSuffix).setAttribute("onclick", "window.location.reload()");
         } else {
             document.getElementById("message" + classSuffix).innerHTML = "<span class='text-success'>*</span> チェックインに成功しました";
             document.getElementById("close" + classSuffix).setAttribute("onclick", "reload(" + withPhoto + ", " + locationId + ")");
         }
     });
+}
+
+function hubenyFormula(latitude1, longitude1, latitude2, longitude2) {
+    const SEMI_MAJOR_AXIS = 6378137;
+    const SEMI_MINOR_AXIS = 6356752.314245;
+    let eccentricitySquared = (SEMI_MAJOR_AXIS ** 2 - SEMI_MINOR_AXIS ** 2) / SEMI_MAJOR_AXIS ** 2;
+
+    let radianLatitude1 = radian(latitude1);
+    let radianLatitude2 = radian(latitude2);
+    let radianLongitude1 = radian(longitude1);
+    let radianLongitude2 = radian(longitude2);
+
+    let latitudeDelta = radianLatitude2 - radianLatitude1;
+    let longitudeDelta = radianLongitude2 - radianLongitude1;
+    let latitudeAverage = (radianLatitude1 + radianLatitude2) / 2;
+
+    let denominator = Math.sqrt((1 - eccentricitySquared * Math.sin(latitudeAverage) ** 2));
+    let radiusOfCurvatureInTheMeridian = (SEMI_MAJOR_AXIS * (1 - eccentricitySquared)) / denominator ** 3;
+    let radiusOfCurvatureInThePrimeVertical = SEMI_MAJOR_AXIS / denominator;
+
+    let distance = Math.sqrt((latitudeDelta * radiusOfCurvatureInTheMeridian) ** 2 + (longitudeDelta * radiusOfCurvatureInThePrimeVertical * Math.cos(latitudeAverage)) ** 2);
+
+    console.log(denominator);
+    console.log(radiusOfCurvatureInTheMeridian);
+    console.log(radiusOfCurvatureInThePrimeVertical);
+
+    console.log(distance);
+
+    return distance;
+}
+
+function radian(degree) {
+    return degree * Math.PI / 180;
 }
 
 function reload(withPhoto, locationId) {
