@@ -28,7 +28,7 @@ function checkin(withPhoto, locationId, targetLatitude, targetLongitude, visitCo
         let visitDate = new Date(lastVisit);
         document.getElementById("close" + classSuffix).className = "btn btn-secondary";
         if (distance > 50) {
-            document.getElementById("message" + classSuffix).innerHTML = "<span class='text-danger'>*</span> チェックインに失敗しました<br>&nbsp;&nbsp;&nbsp;(距離が遠すぎます; " + Math.round(distance) + "m)";
+            document.getElementById("message" + classSuffix).innerHTML = "<span class='text-danger'>*</span> チェックインに失敗しました<br>&nbsp;&nbsp;&nbsp;(距離が遠すぎます; " + Math.round(distance).toLocaleString() + "m)";
             document.getElementById("close" + classSuffix).setAttribute("onclick", "window.location.reload()");
         } else if (Date.now() - visitDate.getTime() - JST < LIMIT && visitCount > 0) {
             document.getElementById("message" + classSuffix).innerHTML = "<span class='text-danger'>*</span> チェックインに失敗しました<br>&nbsp;&nbsp;&nbsp;(前回のチェックインから24時間が経過していません)";
@@ -59,12 +59,6 @@ function hubenyFormula(latitude1, longitude1, latitude2, longitude2) {
     let radiusOfCurvatureInThePrimeVertical = SEMI_MAJOR_AXIS / denominator;
 
     let distance = Math.sqrt((latitudeDelta * radiusOfCurvatureInTheMeridian) ** 2 + (longitudeDelta * radiusOfCurvatureInThePrimeVertical * Math.cos(latitudeAverage)) ** 2);
-
-    console.log(denominator);
-    console.log(radiusOfCurvatureInTheMeridian);
-    console.log(radiusOfCurvatureInThePrimeVertical);
-
-    console.log(distance);
 
     return distance;
 }

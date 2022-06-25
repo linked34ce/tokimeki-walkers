@@ -76,8 +76,11 @@
     <div class="card my-3 border border-2 border-success">
         <div class="card-body">
             <h4>最寄りの聖地</h4>
-            <p>・aaa (???m)</p>
-            <p>・bbb (???m)</p>
+            <ul>
+            {% for nearest_location in nearest_locations %}
+            <li class="my-2">{{ nearest_location.distance }}m ── <a href="./{{ nearest_location.id }}">{{ nearest_location.name }}</a></li>
+            {% endfor %}
+            </ul>
         </div>
     </div>
 </div>

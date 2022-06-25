@@ -1,6 +1,8 @@
 import os
 import re
 from datetime import datetime
+from math import radians, sin, cos, sqrt
+from turtle import distance
 from flask import Flask
 from flask import render_template, request, redirect, url_for
 from flask_login import LoginManager, login_user, logout_user, login_required
@@ -191,7 +193,7 @@ def post(location_id):
         return redirect(url_for("rally"))
     else:
         return redirect(url_for("login"))
-    
+
 @app.route("/rally/<int:location_id>", methods=["GET"])
 #@login_required
 def detail(location_id):
@@ -200,7 +202,7 @@ def detail(location_id):
             username=User.name
         else:
             return redirect(url_for("login"))
-        
+ 
         dbname = "main.db"
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
@@ -212,19 +214,53 @@ def detail(location_id):
         sql2 = "select * from Locations where id = {}".format(location_id)
         cur.execute(sql2)
         location = cur.fetchone()
+
+        sql3 = "select * from Locations where id != {};".format(location_id)
+        cur.execute(sql3)
+        locations = cur.fetchall()
         cur.close()
         conn.close()
 
         location["visit_count"] = len(visits)
         if visits:
             location["last_visit"] = visits[0]["time"]
-            
+
         if location["visit_count"] < 1:
             message = "⚠️この聖地は未訪問です"
         else:
             message = "✅この聖地は{}回訪問済みです".format(location["visit_count"])
 
-        return render_template("detail.html", username=username, location=location, message=message)
+        for i in range(len(locations)): 
+            distance = hubeny_formula(location["latitude"], location["longitude"], 
+                                        locations[i]["latitude"], locations[i]["longitude"])
+            locations[i]["distance"] = "{:,}".format(round(distance))
+
+        locations.sort(key=lambda x: x["distance"])
+        nearest_locations = locations[0:3]
+
+        return render_template("detail.html", username=username, location=location, message=message, 
+                                nearest_locations=nearest_locations)
+
+def hubeny_formula(latitude1, longitude1, latitude2, longitude2):
+    SEMI_MAJOR_AXIS = 6378137
+    SEMI_MINOR_AXIS = 6356752.314245
+    eccentricitySquared = (SEMI_MAJOR_AXIS ** 2 - SEMI_MINOR_AXIS ** 2) / SEMI_MAJOR_AXIS ** 2
+
+    radianLatitude1 = radians(latitude1)
+    radianLatitude2 = radians(latitude2)
+    radianLongitude1 = radians(longitude1)
+    radianLongitude2 = radians(longitude2)
+
+    latitudeDelta = radianLatitude2 - radianLatitude1
+    longitudeDelta = radianLongitude2 - radianLongitude1
+    latitudeAverage = (radianLatitude1 + radianLatitude2) / 2
+
+    denominator = sqrt((1 - eccentricitySquared * sin(latitudeAverage) ** 2))
+    radiusOfCurvatureInTheMeridian = (SEMI_MAJOR_AXIS * (1 - eccentricitySquared)) / denominator ** 3
+    radiusOfCurvatureInThePrimeVertical = SEMI_MAJOR_AXIS / denominator
+
+    distance = sqrt((latitudeDelta * radiusOfCurvatureInTheMeridian) ** 2 + (longitudeDelta * radiusOfCurvatureInThePrimeVertical * cos(latitudeAverage)) ** 2)
+    return distance
 
 @app.route("/posts/<int:page>", methods=["GET"])
 #@login_required
