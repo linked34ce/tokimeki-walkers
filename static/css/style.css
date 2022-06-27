@@ -6,3 +6,18 @@ br {
     color: rgba(var(--bs-body-color-rgb), .75);
     font-size: .875rem;
 }
+
+#map {
+    height: 100vh;
+    width: 100vw;
+    z-index: 1;
+}
+
+#map-return {
+    position: absolute;
+    z-index: 2;
+}
+
+.leaflet-popup-content-wrapper {
+    width: 180px;
+}

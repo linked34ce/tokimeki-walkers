@@ -11,6 +11,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
 import sqlite3
+import folium
 
 UPLOAD_FOLDER = "./static/uploads/"
 
@@ -275,7 +276,7 @@ def posts(page):
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        sql1 = "select * from Posts order by time desc"
+        sql1 = "select * from Posts order by time desc;"
         cur.execute(sql1)
         all_posts = cur.fetchall()
 
@@ -356,8 +357,27 @@ def map():
             username=User.name
         else:
             return redirect(url_for("login"))
+        
+        dbname = "main.db"
+        conn = sqlite3.connect(dbname)
+        conn.row_factory = dict_factory
+        cur = conn.cursor()
+        sql1 = "select * from Locations;"
+        cur.execute(sql1)
+        locations = cur.fetchall()
 
-        return render_template("map.html", username=username)
+        m = folium.Map(location=[35.658584, 139.7454316],
+               zoom_start=14)
+ 
+        tooltip = "クリック！"
+ 
+        folium.Marker([35.658584, 139.7454316], 
+                        popup='<span style="white-space: nowrap;">東京タワー</span>', 
+                        tooltip=tooltip).add_to(m)
+ 
+        m.save("map1.html")
+
+        return render_template("map.html", locations=locations)
 
 @app.route("/map/<int:location_id>", methods=["GET"])
 #@login_required

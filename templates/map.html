@@ -1,16 +1,118 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="ja">
 
-{% block content %}
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="卒業研究">
+    <meta name="twitter:title" content="TOKIMEKI Walkers"> 
+    <meta name="twitter:description" content="聖地巡礼を支援するARフォトスタンプラリーシステム">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://localhost.localhost-https.tk:5000/static/uploads/20220621_011835_F37AF389-572E-4D71-A563-BD89DC121E02.jpeg">
+    <title>TOKIMEKI Walkers</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for ('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+</head>
 
-<h1 class="mb-3">マップ</h1>
-<a href="{{ url_for('main') }}" role="button" class="btn btn-secondary">もどる</a>
-<br>
-<div class="my-3">
-    <h3>ナビ</h3>
-    <a href="/map/1" role="button" class="btn btn-outline-primary my-1">1. ダイバーシティ東京プラザ</a><br>
-    <a href="/map/2" role="button" class="btn btn-outline-primary my-1">2. デックス 東京ビーチ</a>
-</div>
+<body>
+{# <h1 class="mb-3">マップ</h1>
+<a href="{{ url_for('main') }}" role="button" class="btn btn-secondary">もどる</a> #}
 
-<iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d51893.76538968735!2d139.74516831902696!3d35.61884233331035!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x601889f82c55d4cb%3A0x79fe8b211d2010b9!2z5p2x5Lqs6YO9IOOBiuWPsOWgtA!5e0!3m2!1sja!2sjp!4v1653982045606!5m2!1sja!2sjp" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+<div id="map"></div>
 
-{% endblock %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css">
+<script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+<script src="{{ url_for('static', filename='js/leaflet.sprite.js') }}"></script>
+<script>
+    let map = L.map("map", { zoomControl: false }).setView([35.62484634835641, 139.78602418344875], 13);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "© OpenStreetMap"
+    }).addTo(map);
+
+    let buttons = L.control({ position: "topleft" });
+    buttons.onAdd = function (map) {
+        this.ele = L.DomUtil.create("div");
+        this.ele.id = "on-map";
+        return this.ele;
+      };
+    buttons.addTo(map);
+
+    {% for location in locations %}
+    var marker = L.marker(
+        [{{ location.latitude }}, {{ location.longitude }}],
+        { icon: L.spriteIcon("blue") }
+    ).addTo(map);
+    marker.bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='100vw'>");
+    {% endfor %}
+
+    let onMap = document.getElementById("on-map");
+    onMap.innerHTML = "<a href='/' class='btn btn-dark text-light'>もどる</a>";
+    onMap.innerHTML += "<button id='current-location-button' class='btn btn-primary text-light ms-2'>現在地を表示</button>";
+
+    let currentMarkerHidden = true;
+
+    let currentLocationButton = document.getElementById("current-location-button");
+    currentLocationButton.setAttribute("onClick", "currentWatch()");
+
+    let watchId = 0;
+    let currentMarker = null
+    let currentWatchButton = null;
+
+    function currentWatch() {
+        if (currentMarkerHidden) {
+            function success(pos) {
+                let lat = pos.coords.latitude;
+                let lng = pos.coords.longitude;
+                map.setView([ lat,lng ]);
+                if (currentMarker) {
+                    map.removeLayer(currentMarker);
+                }
+                currentMarker = L.marker(
+                    [lat, lng],
+                    { icon: L.spriteIcon("red") }
+                ).addTo(map);
+                currentLocationButton.setAttribute("onClick", "currentWatchReset()");
+                currentLocationButton.innerHTML = "現在地を非表示";
+                currentLocationButton.className = "btn btn-secondary text-light ms-2";
+                currentMarkerHidden = false;
+            }
+            function error(err) {
+                alert("位置情報を取得できませんでした。");
+            }
+            let options = {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            };
+            if (watchId == 0) {
+                watchId = navigator.geolocation.watchPosition(success, error, options);
+            }
+        }
+    }
+
+    function currentWatchReset() {
+        if (!currentMarkerHidden) {
+            if (watchId > 0) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = 0;
+            }
+            if (currentMarker) {
+                map.removeLayer(currentMarker);
+                currentMarker = null;
+            }
+            currentLocationButton.setAttribute("onClick", "currentWatch()");
+            currentLocationButton.innerHTML = "現在地を表示";
+            currentLocationButton.className = "btn btn-primary text-light ms-2";
+            currentMarkerHidden = true;
+        }
+    }
+</script>
+</body>
+
+</html>
