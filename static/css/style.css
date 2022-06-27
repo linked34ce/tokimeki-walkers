@@ -19,5 +19,13 @@ br {
 }
 
 .leaflet-popup-content-wrapper {
-    width: 180px;
+    width: 10.5rem;
+    font-weight: bold;
+    border-style: solid;
+    border-width: 0 3px 3px 0;
+}
+
+.leaflet-popup-tip {
+    border-style: solid;
+    border-width: 0 3px 0 0;
 }

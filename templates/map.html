@@ -50,9 +50,9 @@
         { icon: L.spriteIcon("blue") }
     ).addTo(map);
     if (centralLocationId === {{ location.id }}) {
-        marker.bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='100vw'>").openPopup();
+        marker.bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='115vw'>").openPopup();
     } else {
-        marker.bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='100vw'>");
+        marker.bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='115vw'>");
     }
     {% endfor %}
 
@@ -79,7 +79,7 @@
             function success(pos) {
                 let lat = pos.coords.latitude;
                 let lng = pos.coords.longitude;
-                map.setView([ lat,lng ]);
+                map.setView([lat, lng]);
                 if (currentMarker) {
                     map.removeLayer(currentMarker);
                 }
