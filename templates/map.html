@@ -28,7 +28,8 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
 <script src="{{ url_for('static', filename='js/leaflet.sprite.js') }}"></script>
 <script>
-    let map = L.map("map", { zoomControl: false }).setView([35.62484634835641, 139.78602418344875], 13);
+    let centralLocationId = {{ central_location.id }};
+    let map = L.map("map", { zoomControl: false }).setView([{{ central_location.latitude }}, {{central_location.longitude }}], 14);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
@@ -48,11 +49,20 @@
         [{{ location.latitude }}, {{ location.longitude }}],
         { icon: L.spriteIcon("blue") }
     ).addTo(map);
-    marker.bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='100vw'>");
+    if (centralLocationId === {{ location.id }}) {
+        marker.bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='100vw'>").openPopup();
+    } else {
+        marker.bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='100vw'>");
+    }
     {% endfor %}
 
     let onMap = document.getElementById("on-map");
-    onMap.innerHTML = "<a href='/' class='btn btn-dark text-light'>もどる</a>";
+    let href = "/";
+    if (centralLocationId > 0) {
+        href = "/rally/" + centralLocationId;
+    }
+
+    onMap.innerHTML = "<a href='" + href + "' class='btn btn-dark text-light'>もどる</a>";
     onMap.innerHTML += "<button id='current-location-button' class='btn btn-primary text-light ms-2'>現在地を表示</button>";
 
     let currentMarkerHidden = true;

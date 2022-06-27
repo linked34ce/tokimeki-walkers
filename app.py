@@ -97,7 +97,7 @@ def main():
         sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}';".format(escaped_username)
         cur.execute(sql1)
         visits = cur.fetchall()
-        sql2 = "select id from Locations"
+        sql2 = "select id from Locations;"
         cur.execute(sql2)
         locations = cur.fetchall()
 
@@ -349,9 +349,9 @@ def upload(location_id):
             return redirect(url_for("login"))
     return redirect(url_for("detail", location_id=location_id))
     
-@app.route("/map", methods=["GET"])
+@app.route("/map/<int:location_id>", methods=["GET"])
 #@login_required
-def map():
+def map(location_id):
     if request.method == "GET":
         if User.name:
             username=User.name
@@ -362,22 +362,24 @@ def map():
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        sql1 = "select * from Locations;"
+        sql1 = "select id, name, latitude, longitude, image from Locations;"
         cur.execute(sql1)
         locations = cur.fetchall()
 
-        m = folium.Map(location=[35.658584, 139.7454316],
-               zoom_start=14)
- 
-        tooltip = "クリック！"
- 
-        folium.Marker([35.658584, 139.7454316], 
-                        popup='<span style="white-space: nowrap;">東京タワー</span>', 
-                        tooltip=tooltip).add_to(m)
- 
-        m.save("map1.html")
+        if location_id < 1:
+            central_location = {
+                "id": 0,
+                "latitude": 35.62484634835641, 
+                "longitude": 139.78602418344875
+            }
+        else:
+            sql2 = "select id, latitude, longitude from Locations where id = {};".format(location_id)
+            cur.execute(sql2)
+            central_location = cur.fetchone()
 
-        return render_template("map.html", locations=locations)
+        return render_template("map.html", locations=locations, central_location = central_location)
+
+    return redirect(url_for("login"))
 
 @app.route("/map/<int:location_id>", methods=["GET"])
 #@login_required
