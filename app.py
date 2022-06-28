@@ -2,6 +2,7 @@ import os
 import re
 from datetime import datetime
 from math import radians, sin, cos, sqrt
+from random import randint, shuffle
 from turtle import distance
 from flask import Flask
 from flask import render_template, request, redirect, url_for
@@ -11,7 +12,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
 import sqlite3
-import folium
 
 UPLOAD_FOLDER = "./static/uploads/"
 
@@ -77,8 +77,8 @@ def dict_factory(cursor, row):
    return dic
 
 @login_manager.user_loader
-def load_user(user_id):
-    return User.get_by_id(User, user_id)
+def load_user(userid):
+    return User.get_by_id(User, userid)
 
 @app.route("/", methods=["GET"])
 #@login_required
@@ -268,7 +268,7 @@ def hubeny_formula(latitude1, longitude1, latitude2, longitude2):
 def posts(page):
     if request.method == "GET":
         if User.name:
-            username=User.name
+            username = User.name
         else:
             return redirect(url_for("login"))
         
@@ -334,14 +334,36 @@ def upload(location_id):
             filename = datetime.now().strftime("%Y%m%d_%H%M%S_") + secure_filename(file.filename) 
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
             username=User.name
+            user = User(username)
+            userid = user.get_id()
             dbname = "main.db"
             conn = sqlite3.connect(dbname)
-            conn.row_factory = dict_factory
             cur = conn.cursor()
             escaped_username =  username.replace("'", "''")
             photo = "/static/uploads/" + filename
-            sql = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(escaped_username, location_id, photo)
-            cur.execute(sql)
+            sql1 = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(escaped_username, location_id, photo)
+            cur.execute(sql1)
+
+            sql2 = "select * from lyrics where userid = {};".format(userid)
+            cur.execute(sql2)
+            lyrics = cur.fetchone()
+            lyrics = lyrics[1:len(lyrics)]
+
+            escaped_username =  username.replace("'", "''")
+            sql3 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and username = '{}' order by time desc;".format(location_id, escaped_username)
+            cur.execute(sql3)
+            visits = cur.fetchall()
+            print(visits)
+
+            if len(visits) < 2:
+                numbers = []
+                for i in range(len(lyrics)):
+                    if not lyrics[i]:
+                        numbers.append(i)
+                print(numbers)
+                sql4 = "update Lyrics set lyric{} = 1 where userid = {};".format(numbers[randint(0, len(numbers))], userid)
+                cur.execute(sql4)
+
             conn.commit()
             cur.close()
             conn.close()
@@ -377,20 +399,12 @@ def map(location_id):
             cur.execute(sql2)
             central_location = cur.fetchone()
 
+        cur.close()
+        conn.close()
+
         return render_template("map.html", locations=locations, central_location = central_location)
 
     return redirect(url_for("login"))
-
-@app.route("/map/<int:location_id>", methods=["GET"])
-#@login_required
-def navigation(location_id):
-    if request.method == "GET":
-        if User.name:
-            username=User.name
-        else:
-            return redirect(url_for("login"))
-
-        return render_template("navigation.html", location_id=location_id)
 
 @app.route("/lyrics", methods=["GET"])
 #@login_required
@@ -398,10 +412,25 @@ def lyrics():
     if request.method == "GET":
         if User.name:
             username=User.name
+            user = User(username)
+            userid = user.get_id()   
         else:
             return redirect(url_for("login"))
+        
+        dbname = "main.db"
+        conn = sqlite3.connect(dbname)
+        cur = conn.cursor()
+        sql = "select * from Lyrics where userid = {};".format(userid)
+        cur.execute(sql)
+        lyrics = cur.fetchone()
 
-        return render_template("lyrics.html", username=username)
+        lyrics = lyrics[1:len(lyrics)]
+        numbers = range(1, 101)
+        data = zip(numbers, lyrics)
+        
+        return render_template("lyrics.html", data=data)
+
+    return redirect(url_for("login"))
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
@@ -446,12 +475,20 @@ def signup():
                 cur.close()
                 conn.close()
             else:
+                User.name = username
+
+                result = "<span class='text-success'>*</span> ユーザ登録に成功しました"
                 conn.commit()
+
+                user = User(username)
+                userid = user.get_id()
+
+                sql2 = "insert into Lyrics (userid) values ({});".format(userid)
+                cur.execute(sql2)
+                conn.commit()
+
                 cur.close()
                 conn.close()
-
-                User.name = username
-                result = "<span class='text-success'>*</span> ユーザ登録に成功しました"
 
         return render_template("signup.html", result=result, username=username)
     else:
@@ -501,7 +538,7 @@ def config():
     if User.name:
         current_username = User.name
         user = User(current_username)
-        user_id = str(user.get_id()).zfill(5)
+        userid = str(user.get_id()).zfill(5)
     else:
         return redirect(url_for("login"))
 
@@ -579,11 +616,11 @@ def config():
             conn.close()
             profile = ""
             result = "<span class='text-success'>*</span> プロフィールを変更しました"
-        return render_template("config.html", user_id = user_id, username=username, result=result, profile=profile)
+        return render_template("config.html", userid = userid, username=username, result=result, profile=profile)
     else:
         if not profile:
             profile = ""
-        return render_template("config.html", user_id = user_id, username=username, profile=profile)
+        return render_template("config.html", userid = userid, username=username, profile=profile)
 
 @app.route("/logout")
 #@login_required

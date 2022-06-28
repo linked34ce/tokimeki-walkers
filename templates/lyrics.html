@@ -11,32 +11,54 @@
     <div class="card border border-2 border-primary my-3">
         <div class="card-header">
             <h4 class="fst-italic">Colorful Dreams! Colorful Smiles!</h4>
-            <p>歌詞集め率: 19%</p>
+            <p id="rate">歌詞集め率: 19%</p>
         </div>
         <div class="card-body">
-            <p>
-                夢を奏でよう<br>
-                Rainbow World!<br>
-                ○△※&%○△※&%<br>
+            <div>
+                <p id="lyric1">夢を奏でよう Rainbow World!</p>
+                <p id="lyric2">(Colorful World! Colorful!</p>
+                <p id="lyric3">Colorful Dream! Colorful! Yeah!!)</p>
                 <br>
-                虹色染まる季節<br>
-                走り出したDays<br>
+                <p id="lyric4">虹色染まる季節 走りだした Days</p>
+                <p id="lyric5">目覚めたての夢から こぼれる光 まぶしくて</p>
+                <p id="lyric6"><ruby><rb>瞬間</rb><rp> (</rp><rt>いま</rt><rp>)</rp></ruby> 未来 とまらない
+                <p id="lyric7">高鳴り感じてる？</p>
+                <p id="lyric8">(…I feel the same as you…!!)</p>
+                <p id="lyric9">聞こえるよ 胸のドキドキ
+                <p id="lyric10">合図にはじめよう</p>
                 <br>
-                ○△※&%○△※&%<br>
-                こぼれる光 まぶしくて<br>
+                <p id="lyric11">流れてく雲 通り雨
+                <p id="lyric12">頬を濡らしたって</p>
+                <p id="lyric13">青く澄んだ空 また広がるよ</p>
+                <p id="lyric14">歌おう 歌おう (Together!)</p>
+                <p id="lyric15">心つないだら Let's go!</p>
+                <p id="lyric16">一緒に さぁ (いくよ、せーの！)</p>
+                <p id="lyric17">You go, I go! We go!!</p>
                 <br>
-                ○△※&%○△※&%<br>
-                ……
-            </p>
+                <p id="lyric18">Dream on!!</p>
+                <p id="lyric19">夢と夢 響く Melody!</p>
+                <p id="lyric20">どこまでも 広がってくよ</p>
+                <p id="lyric21">Fly! High!</p>
+                <p id="lyric22">終わりなく続く空へ
+                <p id="lyric23">(Everybody! Draw! Dream!)</p>
+                <p id="lyric24">どんな初めても 一緒ならね</p>
+                <p id="lyric25">咲いてくよ Smile! 今 高く</p>
+                <p id="lyric26">Sky! High!</p>
+                <p id="lyric27">自由に そう Brighten your colors</p>
+                <p id="lyric28">笑顔で走る軌跡 ほら輝くよ</p>
+                <p id="lyric29">果てない New Stories
+                <p id="lyric30">(We all together!)</p>
+                <p id="lyric31">描き続けよう</p>
+            </div>
         </div>
     </div>
-    <div class="card border border-2 border-primary my-3">
+    {# <div class="card border border-2 border-primary my-3">
         <div class="card-header">
             <h4 class="fst-italic">NEO SKY, NEO MAP!</h4>
-            <p>歌詞集め率: 15%</p>
+            <p id="lyric">歌詞集め率: 15%</p>
         </div>
         <div class="card-body">
-            <p>
+            <p id="lyric">
                 ゆっくりと走るこの道<br>
                 ○△※&%○△※&%<br>
                 <br>
@@ -46,7 +68,23 @@
                 ……
             </p>
         </div>
-    </div>
+    </div> #}
 </div>
+
+<script>
+    const num_of_lyrics = 31;
+    let count = 0;
+    {% for number, lyric in data %}
+    var lyricCollected = {{ lyric }}
+    var lyric = document.getElementById("lyric" + {{ number }});
+    if (!lyricCollected && lyric) {
+        lyric.innerHTML = "○△※&%○△※&%";
+    } else if (lyricCollected && lyric) {
+        count++;
+    }
+    {% endfor %}
+    let lyricHuntRate = count / num_of_lyrics;
+    document.getElementById("rate").innerHTML = "歌詞集め率: " + Math.round(lyricHuntRate * 10000) / 100 + "%";
+</script>
 
 {% endblock %}
