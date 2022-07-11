@@ -6,7 +6,6 @@ from random import randint, shuffle
 from flask import Flask
 from flask import render_template, request, redirect, url_for
 from flask_login import LoginManager, login_user, logout_user, login_required
-from matplotlib import use
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
