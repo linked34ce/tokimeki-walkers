@@ -3,7 +3,6 @@ import re
 from datetime import datetime
 from math import radians, sin, cos, sqrt
 from random import randint, shuffle
-from turtle import distance
 from flask import Flask
 from flask import render_template, request, redirect, url_for
 from flask_login import LoginManager, login_user, logout_user, login_required
