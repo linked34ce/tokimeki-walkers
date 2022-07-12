@@ -5,3 +5,4 @@ gdrive*.py
 client_secrets.json
 credentials.txt
 static/uploads
+.env
