@@ -25,7 +25,7 @@ function checkin(withPhoto, locationId, targetLatitude, targetLongitude, visitCo
 
     navigator.geolocation.getCurrentPosition(pos => {
         let distance = hubenyFormula(pos.coords.latitude, pos.coords.longitude, targetLatitude, targetLongitude);
-        let visitDate = new Date(lastVisit);
+        let visitDate = new Date(lastVisit.replace(/-/g, "/"));
         document.getElementById("close" + classSuffix).className = "btn btn-secondary";
         if (distance > THRESHOLD) {
             document.getElementById("message" + classSuffix).innerHTML = "<span class='text-danger'>*</span> チェックインに失敗しました<br>&nbsp;&nbsp;&nbsp;(距離が遠すぎます; " + Math.round(distance).toLocaleString() + "m)";

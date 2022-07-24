@@ -338,7 +338,7 @@ def upload(location_id):
             file = request.files["photo"]
             filename = datetime.now().strftime("%Y%m%d_%H%M%S_") + secure_filename(file.filename) 
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            client.upload_file(UPLOAD_FOLDER + filename, BUCKET_FOLDER, BUCKET_FOLDER + filename)
+            #client.upload_file(UPLOAD_FOLDER + filename, BUCKET_FOLDER, BUCKET_FOLDER + filename)
             username=User.name
             user = User(username)
             userid = user.get_id()
