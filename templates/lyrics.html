@@ -11,7 +11,7 @@
     <div class="card border border-2 border-primary my-3">
         <div class="card-header">
             <h4 class="fst-italic">Colorful Dreams! Colorful Smiles!</h4>
-            <p id="rate">歌詞集め率: 19%</p>
+            <p id="rate">歌詞集め率: 0.00%</p>
         </div>
         <div class="card-body">
             <div>
@@ -72,6 +72,7 @@
 </div>
 
 <script>
+    /*
     const num_of_lyrics = 31;
     let count = 0;
     {% for number, lyric in data %}
@@ -83,7 +84,19 @@
         count++;
     }
     {% endfor %}
-    let lyricHuntRate = count / num_of_lyrics;
+    */
+
+    let number = 0;
+    let count = 0;
+    {% for lyric in lyrics %}
+    number++;
+    if ({{ lyric }}) {
+        count++;
+    } else {
+        document.getElementById("lyric" + number).innerHTML = "○△※&%○△※&%";
+    }
+    {% endfor %}
+    let lyricHuntRate = count / number;
     document.getElementById("rate").innerHTML = "歌詞集め率: " + Math.round(lyricHuntRate * 10000) / 100 + "%";
 </script>
 

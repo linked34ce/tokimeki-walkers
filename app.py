@@ -91,6 +91,8 @@ def main():
     if request.method == "GET":
         if User.name:
             username=User.name
+            user = User(username)
+            userid = user.get_id()   
         else:
             return redirect(url_for("login"))
         
@@ -105,22 +107,29 @@ def main():
         sql2 = "select id from Locations;"
         cur.execute(sql2)
         locations = cur.fetchall()
+        conn.row_factory = None
+        cur = conn.cursor()
+        sql3 = "select * from Lyrics where userid = {};".format(userid)
+        cur.execute(sql3)
+        lyrics = cur.fetchone()
 
         num_of_locations = len(locations)
-        location_id = 0
+        location_ids = []
         num_of_visited_locs = 0
         num_of_photos = 0
         for visit in visits:
-            if location_id != visit["location_id"]:
-                location_id = visit["location_id"]
+            print(visit["location_id"])
+            if visit["location_id"] not in location_ids:
+                location_ids.append(visit["location_id"])
                 num_of_visited_locs += 1
                 if visit["photo"] != "/static/tmp/no_image.jpg":
                     num_of_photos += 1
 
-        lyrics_percent = 17
+        num_of_lyrics = 31
+        lyrics = lyrics[1:num_of_lyrics + 1]
 
         return render_template("index.html", username=username, num_of_locations=num_of_locations,
-                num_of_visited_locs=num_of_visited_locs, num_of_photos=num_of_photos, lyrics_percent=lyrics_percent)
+                num_of_visited_locs=num_of_visited_locs, num_of_photos=num_of_photos, lyrics=lyrics)
 
 @app.route("/rally", methods=["GET"])
 #@login_required
@@ -430,11 +439,10 @@ def lyrics():
         cur.execute(sql)
         lyrics = cur.fetchone()
 
-        lyrics = lyrics[1:len(lyrics)]
-        numbers = range(1, 101)
-        data = zip(numbers, lyrics)
+        num_of_lyrics = 31
+        lyrics = lyrics[1:num_of_lyrics + 1]
         
-        return render_template("lyrics.html", data=data)
+        return render_template("lyrics.html", lyrics=lyrics)
 
     return redirect(url_for("login"))
 

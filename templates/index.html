@@ -17,7 +17,7 @@
         <h4>活動記録</h4>
         <p>訪問済み聖地数: {{ num_of_visited_locs }} / {{ num_of_locations }}</p>
         <p>撮影済み聖地数: {{ num_of_photos }} / {{ num_of_locations }}</p>
-        <p>歌詞集め率平均: {{ lyrics_percent }}%</p>
+        <p id="rate">歌詞集め率平均: 0.00%</p>
     </div>
 </div>
 
@@ -27,5 +27,18 @@
     <a href="{{ url_for('lyrics') }}" role="button" class="btn btn-primary my-1">歌詞集め</a>
     <a href="{{ url_for('posts', page=1) }}" role="button" class="btn btn-primary my-1">みんなの投稿</a>
 </div>
+
+<script>
+    let number = 0;
+    let count = 0;
+    {% for lyric in lyrics %}
+    number++;
+    if ({{ lyric }}) {
+        count++;
+    }
+    {% endfor %}
+    let lyricHuntRate = count / number;
+    document.getElementById("rate").innerHTML = "歌詞集め率平均: " + Math.round(lyricHuntRate * 10000) / 100 + "%";
+</script>
 
 {% endblock %}
