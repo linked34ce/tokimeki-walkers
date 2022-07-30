@@ -7,9 +7,9 @@ document.getElementById("checkin-with-photo").addEventListener("click", () => {
 });
 
 function checkin(withPhoto, locationId, targetLatitude, targetLongitude, visitCount, lastVisit) {
-    const LIMIT = 86400000; // 1日: 86400000 1分: 60000
+    const LIMIT = 60000; // 1日: 86400000 1分: 60000
     const JST = 32400000;
-    const THRESHOLD = 50; // 実際は50m テスト用: 100000m
+    const THRESHOLD = 1000000; // 実際は50m テスト用: 100000m
 
     let classSuffix = "";
 
