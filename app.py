@@ -40,7 +40,7 @@ class User():
         username_pattern = re.compile(r'^(?!.*(\s)).*$')
 
         if username_pattern.match(name):
-            dbname = "main.db"
+            dbname = "./main.db"
             conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
@@ -63,7 +63,7 @@ class User():
         return self.id
 
     def get_by_id(self, id):
-        dbname = "main.db"
+        dbname = "./main.db"
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
@@ -96,7 +96,7 @@ def main():
         else:
             return redirect(url_for("login"))
         
-        dbname = "main.db"
+        dbname = "./main.db"
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
@@ -140,7 +140,7 @@ def rally():
         else:
             return redirect(url_for("login"))
         
-        dbname = "main.db"
+        dbname = "./main.db"
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
@@ -187,7 +187,7 @@ def post(location_id):
         content = request.form.get("content" + str(location_id))
         if not content:
             content = ""
-        dbname = "main.db"
+        dbname = "./main.db"
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
@@ -218,7 +218,7 @@ def detail(location_id):
         else:
             return redirect(url_for("login"))
  
-        dbname = "main.db"
+        dbname = "./main.db"
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
@@ -286,7 +286,7 @@ def posts(page):
         else:
             return redirect(url_for("login"))
         
-        dbname = "main.db"
+        dbname = "./main.db"
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
@@ -325,7 +325,7 @@ def checkinWithoutPhoto(location_id):
         if User.name:
             photo = "/static/tmp/no_image.jpg"
             username=User.name
-            dbname = "main.db"
+            dbname = "./main.db"
             conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
@@ -351,7 +351,7 @@ def upload(location_id):
             username=User.name
             user = User(username)
             userid = user.get_id()
-            dbname = "main.db"
+            dbname = "./main.db"
             conn = sqlite3.connect(dbname)
             cur = conn.cursor()
             escaped_username =  username.replace("'", "''")
@@ -395,7 +395,7 @@ def map(location_id):
         else:
             return redirect(url_for("login"))
         
-        dbname = "main.db"
+        dbname = "./main.db"
         conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
@@ -432,7 +432,7 @@ def lyrics():
         else:
             return redirect(url_for("login"))
         
-        dbname = "main.db"
+        dbname = "./main.db"
         conn = sqlite3.connect(dbname)
         cur = conn.cursor()
         sql = "select * from Lyrics where userid = {};".format(userid)
@@ -473,7 +473,7 @@ def signup():
         else:
             password_hash = generate_password_hash(password, method="sha256")
 
-            dbname = "main.db"
+            dbname = "./main.db"
             conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
@@ -557,7 +557,7 @@ def config():
         return redirect(url_for("login"))
 
     username = current_username
-    dbname = "main.db"
+    dbname = "./main.db"
     conn = sqlite3.connect(dbname)
     conn.row_factory = dict_factory
     cur = conn.cursor()
@@ -642,3 +642,6 @@ def logout():
     logout_user()
     User.name = None
     return redirect(url_for("login"))
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
