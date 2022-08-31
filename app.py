@@ -25,6 +25,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = "login"
 
 load_dotenv()
 client = boto3.client("s3")
@@ -88,7 +89,7 @@ def load_user(userid):
     return User.get_by_id(User, userid)
 
 @app.route("/", methods=["GET"])
-#@login_required
+@login_required
 def main():
     if request.method == "GET":
         if User.name:
@@ -134,7 +135,7 @@ def main():
                 num_of_visited_locs=num_of_visited_locs, num_of_photos=num_of_photos, lyrics=lyrics)
 
 @app.route("/rally", methods=["GET"])
-#@login_required
+@login_required
 def rally():
     if request.method == "GET":
         if User.name:
@@ -176,7 +177,7 @@ def rally():
         return render_template("rally.html", username=username, locations=locations)
 
 @app.route("/post/<int:location_id>", methods=["POST"])
-#@login_required
+@login_required
 def post(location_id):
     if request.method == "POST":
         if User.name:
@@ -212,7 +213,7 @@ def post(location_id):
         return redirect(url_for("login"))
 
 @app.route("/rally/<int:location_id>", methods=["GET"])
-#@login_required
+@login_required
 def detail(location_id):
     if request.method == "GET":
         if User.name:
@@ -280,7 +281,7 @@ def hubeny_formula(latitude1, longitude1, latitude2, longitude2):
     return distance
 
 @app.route("/posts/<int:page>", methods=["GET"])
-#@login_required
+@login_required
 def posts(page):
     if request.method == "GET":
         if User.name:
@@ -321,7 +322,7 @@ def posts(page):
         return render_template("posts.html", posts=posts, page=page, num_of_pages=num_of_pages)
 
 @app.route("/checkinWithoutPhoto/<int:location_id>/", methods=["GET", "POST"])
-#@login_required
+@login_required
 def checkinWithoutPhoto(location_id):
     if request.method == "GET":
         if User.name:
@@ -342,7 +343,7 @@ def checkinWithoutPhoto(location_id):
         return redirect(url_for("detail", location_id=location_id))
 
 @app.route("/upload/<int:location_id>", methods=["POST"])
-#@login_required
+@login_required
 def upload(location_id):
     if request.method == "POST":
         if User.name:
@@ -389,7 +390,7 @@ def upload(location_id):
     return redirect(url_for("detail", location_id=location_id))
     
 @app.route("/map/<int:location_id>", methods=["GET"])
-#@login_required
+@login_required
 def map(location_id):
     if request.method == "GET":
         if User.name:
@@ -424,7 +425,7 @@ def map(location_id):
     return redirect(url_for("login"))
 
 @app.route("/lyrics", methods=["GET"])
-#@login_required
+@login_required
 def lyrics():
     if request.method == "GET":
         if User.name:
@@ -540,7 +541,8 @@ def login():
                 result += "パスワードに誤りがあります"
             elif user.name:
                 login_user(user)
-                return redirect(url_for("main"))
+                next = request.args.get("next")
+                return redirect(next or url_for("main"))
         return render_template("login.html", result=result, username=username)
     else:
         if User.name:
@@ -549,7 +551,7 @@ def login():
             return render_template("login.html")
 
 @app.route("/config", methods=["GET", "POST"])
-#@login_required
+@login_required
 def config():
     if User.name:
         current_username = User.name
@@ -639,7 +641,7 @@ def config():
         return render_template("config.html", userid = userid, username=username, profile=profile)
 
 @app.route("/logout")
-#@login_required
+@login_required
 def logout():
     logout_user()
     User.name = None
