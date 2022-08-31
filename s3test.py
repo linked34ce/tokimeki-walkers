@@ -6,6 +6,6 @@ client = boto3.client("s3")
 
 FILENAME = "./static/tmp/op_setsuna.jpg"
 BUCKET = "graduation-research"
-KEY = "/tmp/op_setsuna.jpg"
+KEY = "/tmp/yupomu.jpg"
 
 client.upload_file(FILENAME, BUCKET, KEY)
