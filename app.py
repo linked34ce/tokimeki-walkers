@@ -10,9 +10,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import sqlite3
 import boto3
+import botocore
 from dotenv import load_dotenv
 
-DB_NAME = "tokimeki-walkers/main.db"
+DB_NAME_REMOTE = "tokimeki-walkers/main.db"
+DB_NAME_LOCAL  = "main.db"
 
 UPLOAD_FOLDER = "./static/uploads/"
 BUCKET_NAME = "graduation-research"
@@ -42,8 +44,12 @@ class User():
         username_pattern = re.compile(r'^(?!.*(\s)).*$')
 
         if username_pattern.match(name):
-            dbname = DB_NAME
-            conn = sqlite3.connect(dbname)
+            try:
+                dbname = DB_NAME_LOCAL
+                conn = sqlite3.connect(dbname)
+            except sqlite3.OperationalError:
+                dbname = DB_NAME_REMOTE
+                conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
             name = name.replace("'", "''")
@@ -65,8 +71,12 @@ class User():
         return self.id
 
     def get_by_id(self, id):
-        dbname = DB_NAME
-        conn = sqlite3.connect(dbname)
+        try:
+            dbname = DB_NAME_LOCAL
+            conn = sqlite3.connect(dbname)
+        except sqlite3.OperationalError:
+            dbname = DB_NAME_REMOTE
+            conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
         sql = "select * from Users where id = {};".format(id)
@@ -98,8 +108,12 @@ def main():
         else:
             return redirect(url_for("login"))
         
-        dbname = DB_NAME
-        conn = sqlite3.connect(dbname)
+        try:
+            dbname = DB_NAME_LOCAL
+            conn = sqlite3.connect(dbname)
+        except sqlite3.OperationalError:
+            dbname = DB_NAME_REMOTE
+            conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
         escaped_username =  username.replace("'", "''")
@@ -142,8 +156,12 @@ def rally():
         else:
             return redirect(url_for("login"))
         
-        dbname = DB_NAME
-        conn = sqlite3.connect(dbname)
+        try:
+            dbname = DB_NAME_LOCAL
+            conn = sqlite3.connect(dbname)
+        except sqlite3.OperationalError:
+            dbname = DB_NAME_REMOTE
+            conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
         sql1 = "select * from Locations;"
@@ -189,8 +207,12 @@ def post(location_id):
         content = request.form.get("content" + str(location_id))
         if not content:
             content = ""
-        dbname = DB_NAME
-        conn = sqlite3.connect(dbname)
+        try:
+            dbname = DB_NAME_LOCAL
+            conn = sqlite3.connect(dbname)
+        except sqlite3.OperationalError:
+            dbname = DB_NAME_REMOTE
+            conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
 
@@ -220,8 +242,12 @@ def detail(location_id):
         else:
             return redirect(url_for("login"))
  
-        dbname = DB_NAME
-        conn = sqlite3.connect(dbname)
+        try:
+            dbname = DB_NAME_LOCAL
+            conn = sqlite3.connect(dbname)
+        except sqlite3.OperationalError:
+            dbname = DB_NAME_REMOTE
+            conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
         escaped_username =  username.replace("'", "''")
@@ -288,8 +314,12 @@ def posts(page):
         else:
             return redirect(url_for("login"))
         
-        dbname = DB_NAME
-        conn = sqlite3.connect(dbname)
+        try:
+            dbname = DB_NAME_LOCAL
+            conn = sqlite3.connect(dbname)
+        except sqlite3.OperationalError:
+            dbname = DB_NAME_REMOTE
+            conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
         sql1 = "select * from Posts order by time desc;"
@@ -327,8 +357,12 @@ def checkinWithoutPhoto(location_id):
         if User.name:
             photo = "/static/tmp/no_image.jpg"
             username=User.name
-            dbname = DB_NAME
-            conn = sqlite3.connect(dbname)
+            try:
+                dbname = DB_NAME_LOCAL
+                conn = sqlite3.connect(dbname)
+            except sqlite3.OperationalError:
+                dbname = DB_NAME_REMOTE
+                conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
             escaped_username =  username.replace("'", "''")
@@ -350,14 +384,18 @@ def upload(location_id):
             filename = datetime.now().strftime("%Y%m%d_%H%M%S_") + secure_filename(file.filename) 
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
             try:
-                client.upload_file(UPLOAD_FOLDER + filename, BUCKET_FOLDER, BUCKET_FOLDER + filename)
-            except:
+                client.upload_file(UPLOAD_FOLDER + filename, BUCKET_NAME, BUCKET_FOLDER + filename)
+            except botocore.exceptions.NoCredentialsError:
                 pass
             username=User.name
             user = User(username)
             userid = user.get_id()
-            dbname = DB_NAME
-            conn = sqlite3.connect(dbname)
+            try:
+                dbname = DB_NAME_LOCAL
+                conn = sqlite3.connect(dbname)
+            except sqlite3.OperationalError:
+                dbname = DB_NAME_REMOTE
+                conn = sqlite3.connect(dbname)
             cur = conn.cursor()
             escaped_username =  username.replace("'", "''")
             photo = "/static/uploads/" + filename
@@ -400,8 +438,12 @@ def map(location_id):
         else:
             return redirect(url_for("login"))
         
-        dbname = DB_NAME
-        conn = sqlite3.connect(dbname)
+        try:
+            dbname = DB_NAME_LOCAL
+            conn = sqlite3.connect(dbname)
+        except sqlite3.OperationalError:
+            dbname = DB_NAME_REMOTE
+            conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
         sql1 = "select id, name, latitude, longitude, image from Locations;"
@@ -437,8 +479,12 @@ def lyrics():
         else:
             return redirect(url_for("login"))
         
-        dbname = DB_NAME
-        conn = sqlite3.connect(dbname)
+        try:
+            dbname = DB_NAME_LOCAL
+            conn = sqlite3.connect(dbname)
+        except sqlite3.OperationalError:
+            dbname = DB_NAME_REMOTE
+            conn = sqlite3.connect(dbname)
         cur = conn.cursor()
         sql = "select * from Lyrics where userid = {};".format(userid)
         cur.execute(sql)
@@ -478,8 +524,12 @@ def signup():
         else:
             password_hash = generate_password_hash(password, method="sha256")
 
-            dbname = DB_NAME
-            conn = sqlite3.connect(dbname)
+            try:
+                dbname = DB_NAME_LOCAL
+                conn = sqlite3.connect(dbname)
+            except sqlite3.OperationalError:
+                dbname = DB_NAME_REMOTE
+                conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
             escaped_username =  username.replace("'", "''")
@@ -563,8 +613,12 @@ def config():
         return redirect(url_for("login"))
 
     username = current_username
-    dbname = DB_NAME
-    conn = sqlite3.connect(dbname)
+    try:
+        dbname = DB_NAME_LOCAL
+        conn = sqlite3.connect(dbname)
+    except sqlite3.OperationalError:
+        dbname = DB_NAME_REMOTE
+        conn = sqlite3.connect(dbname)
     conn.row_factory = dict_factory
     cur = conn.cursor()
     escaped_username =  username.replace("'", "''")
