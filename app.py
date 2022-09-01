@@ -12,8 +12,7 @@ import sqlite3
 import boto3
 from dotenv import load_dotenv
 
-#DB_NAME = "tokimeki-walkers/main.db"
-DB_NAME = "main.db"
+DB_NAME = "tokimeki-walkers/main.db"
 
 UPLOAD_FOLDER = "./static/uploads/"
 BUCKET_NAME = "graduation-research"
@@ -121,7 +120,7 @@ def main():
         num_of_visited_locs = 0
         num_of_photos = 0
         for visit in visits:
-            print(visit["location_id"])
+            # print(visit["location_id"])
             if visit["location_id"] not in location_ids:
                 location_ids.append(visit["location_id"])
                 num_of_visited_locs += 1
@@ -350,7 +349,10 @@ def upload(location_id):
             file = request.files["photo"]
             filename = datetime.now().strftime("%Y%m%d_%H%M%S_") + secure_filename(file.filename) 
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            #client.upload_file(UPLOAD_FOLDER + filename, BUCKET_FOLDER, BUCKET_FOLDER + filename)
+            try:
+                client.upload_file(UPLOAD_FOLDER + filename, BUCKET_FOLDER, BUCKET_FOLDER + filename)
+            except:
+                pass
             username=User.name
             user = User(username)
             userid = user.get_id()
@@ -371,14 +373,14 @@ def upload(location_id):
             sql3 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and username = '{}' order by time desc;".format(location_id, escaped_username)
             cur.execute(sql3)
             visits = cur.fetchall()
-            print(visits)
+            # print(visits)
 
             if len(visits) < 2:
                 numbers = []
                 for i in range(len(lyrics)):
                     if not lyrics[i]:
                         numbers.append(i)
-                print(numbers)
+                # print(numbers)
                 sql4 = "update Lyrics set lyric{} = 1 where userid = {};".format(numbers[randint(0, len(numbers))], userid)
                 cur.execute(sql4)
 
