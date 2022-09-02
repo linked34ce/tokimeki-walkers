@@ -6,4 +6,6 @@ client_secrets.json
 credentials.txt
 static/uploads
 .env
+.venv
+nohup.out
 *.DS_Store
