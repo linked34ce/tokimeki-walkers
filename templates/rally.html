@@ -53,4 +53,10 @@
     {% endfor %}
 </div>
 
+<script>
+    window.addEventListener("DOMContentLoaded", () => {
+        document.getElementById("twitter-card").content =  "{{ location.photo }}";
+    });
+</script>
+
 {% endblock %}

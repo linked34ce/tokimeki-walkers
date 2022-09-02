@@ -18,7 +18,8 @@ DB_NAME_REMOTE = "tokimeki-walkers/main.db"
 DB_NAME_LOCAL  = "main.db"
 
 UPLOAD_FOLDER = "./static/uploads/"
-BUCKET_NAME = "graduation-research"
+BUCKET_NAME = "tokimeki-walkers"
+BUCKET_URL = "https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com/"
 BUCKET_FOLDER = "/uploads/"
 
 app = Flask(__name__)
@@ -385,9 +386,11 @@ def upload(location_id):
             filename = datetime.now().strftime("%Y%m%d_%H%M%S_") + secure_filename(file.filename) 
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
             try:
-                client.upload_file(UPLOAD_FOLDER + filename, BUCKET_NAME, BUCKET_FOLDER + filename)
+                client.upload_file(UPLOAD_FOLDER + filename, BUCKET_NAME, BUCKET_FOLDER + filename, 
+                ExtraArgs={"ContentType": "image/jpeg", "ACL": "public-read"})
             except botocore.exceptions.NoCredentialsError:
                 pass
+            os.remove(UPLOAD_FOLDER + filename)
             username=User.name
             user = User(username)
             userid = user.get_id()
@@ -399,7 +402,7 @@ def upload(location_id):
                 conn = sqlite3.connect(dbname)
             cur = conn.cursor()
             escaped_username =  username.replace("'", "''")
-            photo = "/static/uploads/" + filename
+            photo = BUCKET_URL + BUCKET_FOLDER + filename
             sql1 = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(escaped_username, location_id, photo)
             cur.execute(sql1)
 
@@ -705,5 +708,5 @@ def logout():
     return redirect(url_for("login"))
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=80)
+    app.run(host="0.0.0.0", port=80, debug=True, threaded=True)
     # serve(app, host="0.0.0.0", port=80)
