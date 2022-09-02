@@ -1,0 +1,4 @@
+flask
+flask-login
+python-dotenv
+boto3
