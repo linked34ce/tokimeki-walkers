@@ -15,12 +15,13 @@ import botocore
 from dotenv import load_dotenv
 
 DB_NAME_REMOTE = "tokimeki-walkers/main.db"
-DB_NAME_LOCAL  = "main.db"
-
+DB_NAME_LOCAL  = "./main.db"
 UPLOAD_FOLDER = "./static/uploads/"
 BUCKET_NAME = "tokimeki-walkers"
 BUCKET_URL = "https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com/"
-BUCKET_FOLDER = "/uploads/"
+BUCKET_UPLOAD = "/uploads/"
+DIR_NAME = "static/cards/"
+NO_IMAGE = "no_image.jpg"
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.urandom(24)
@@ -140,7 +141,7 @@ def main():
             if visit["location_id"] not in location_ids:
                 location_ids.append(visit["location_id"])
                 num_of_visited_locs += 1
-                if visit["photo"] != "/static/tmp/no_image.jpg":
+                if visit["photo"] != NO_IMAGE:
                     num_of_photos += 1
 
         num_of_lyrics = 31
@@ -170,8 +171,6 @@ def rally():
         cur.execute(sql1)
         locations = cur.fetchall()
 
-        NO_IMG_PATH = "/static/tmp/no_image.jpg"
-
         for location in locations:
             escaped_username =  username.replace("'", "''")
             sql2 = "select * from Locations left join Visits on Locations.id = Visits.location_id where username = '{}' and location_id = '{}' order by time desc;".format(escaped_username, location["id"])
@@ -184,9 +183,9 @@ def rally():
                 location["visited"] = "⚠️未訪問"
                 location["share_button"] = " disabled"     
             if not visits:
-                location["photo"] = NO_IMG_PATH
+                location["photo"] = NO_IMAGE
             elif not visits[0]["photo"]:
-                location["photo"] = NO_IMG_PATH
+                location["photo"] = NO_IMAGE
             else:
                 location["photo"] = visits[0]["photo"]
 
@@ -357,7 +356,7 @@ def posts(page):
 def checkinWithoutPhoto(location_id):
     if request.method == "GET":
         if User.name:
-            photo = "/static/tmp/no_image.jpg"
+            photo = NO_IMAGE
             username=User.name
             try:
                 dbname = DB_NAME_LOCAL
@@ -377,6 +376,15 @@ def checkinWithoutPhoto(location_id):
             return redirect(url_for("login"))
         return redirect(url_for("detail", location_id=location_id))
 
+def createHTML(filename):
+    html = "<html lang='ja'><head><meta charset='utf-8'>"
+    html += "<meta name='twitter:title' content='TOKIMEKI Walkers'>"
+    html += "<meta name='og:description' content='聖地巡礼を支援するARフォトスタンプラリーシステム'>"
+    html += "<meta name='twitter:card' content='summary_large_image'>"
+    html += "<meta name='og:image' content='{}'>".format(BUCKET_URL + BUCKET_UPLOAD + filename)
+    html += "</head><script>window.addEventListener('onload', location.href = '/');</script></html>"
+    return html
+
 @app.route("/upload/<int:location_id>", methods=["POST"])
 @login_required
 def upload(location_id):
@@ -386,8 +394,10 @@ def upload(location_id):
             filename = datetime.now().strftime("%Y%m%d_%H%M%S_") + secure_filename(file.filename) 
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
             try:
-                client.upload_file(UPLOAD_FOLDER + filename, BUCKET_NAME, BUCKET_FOLDER + filename, 
+                client.upload_file(UPLOAD_FOLDER + filename, BUCKET_NAME, BUCKET_UPLOAD + filename, 
                 ExtraArgs={"ContentType": "image/jpeg", "ACL": "public-read"})
+                with open(DIR_NAME + filename + ".html", mode="w") as f:
+                    f.write(createHTML(filename))
             except botocore.exceptions.NoCredentialsError:
                 pass
             os.remove(UPLOAD_FOLDER + filename)
@@ -402,8 +412,7 @@ def upload(location_id):
                 conn = sqlite3.connect(dbname)
             cur = conn.cursor()
             escaped_username =  username.replace("'", "''")
-            photo = BUCKET_URL + BUCKET_FOLDER + filename
-            sql1 = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(escaped_username, location_id, photo)
+            sql1 = "insert into Visits (username, location_id, photo) values ('{}', {}, '{}');".format(escaped_username, location_id, filename)
             cur.execute(sql1)
 
             sql2 = "select * from lyrics where userid = {};".format(userid)
