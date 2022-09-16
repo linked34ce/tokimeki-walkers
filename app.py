@@ -123,7 +123,6 @@ def main():
             conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        #escaped_username =  username.replace("'", "''")
         sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where userid = '{}';".format(userid)
         cur.execute(sql1)
         visits = cur.fetchall()
@@ -138,6 +137,7 @@ def main():
 
         num_of_locations = len(locations)
         location_ids = []
+        location_ids_with_photo = []
         num_of_visited_locs = 0
         num_of_photos = 0
         for visit in visits:
@@ -145,7 +145,9 @@ def main():
             if visit["location_id"] not in location_ids:
                 location_ids.append(visit["location_id"])
                 num_of_visited_locs += 1
+            if visit["location_id"] not in location_ids_with_photo:
                 if visit["photo"] != NO_IMAGE:
+                    location_ids_with_photo.append(visit["location_id"])
                     num_of_photos += 1
 
         num_of_lyrics = 31
@@ -273,6 +275,7 @@ def detail(location_id):
 
         location["visit_count"] = len(visits)
         if visits:
+            location["photo"] = visits[0]["photo"]
             location["last_visit"] = visits[0]["time"]
 
         if location["visit_count"] < 1:

@@ -38,20 +38,24 @@ function checkin(withPhoto, locationId, targetLatitude, targetLongitude, visitCo
             document.getElementById("close" + classSuffix).setAttribute("onclick", "reload(" + withPhoto + ", " + locationId + ")");
         }
     }, err => {
-        let err_msg = "位置情報の取得に失敗しました: \n";
+        let err_msg = "位置情報の取得に失敗しました:\n";
         switch (err.code) {
             case 1:
                 err_msg += "位置情報サービス (GPS) の利用が許可されていません";
                 break;
             case 2:
-                err_msg = "デバイスの位置を判定することができません";
+                err_msg = "お使いの端末の位置を判定することができません";
                 break;
             case 3:
-                err_msg = "タイムアウトしました";
+                err_msg = "位置情報の取得に時間がかかっています";
                 break;
         }
         window.alert(err_msg);
         window.location.reload();
+    }, {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
     });
 }
 

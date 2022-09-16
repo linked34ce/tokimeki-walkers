@@ -4,13 +4,18 @@
 
 <h1 class="mb-3">{{ location.id }}. {{ location.name }}</h1>
 <p class="my-3">{{ message }}</p>
-<a href="{{ url_for('rally') }}" role="button" class="btn btn-secondary">もどる</a>
-<a href="/map/{{ location.id }}" role="button" class="btn btn-primary">マップを表示</a>
-<br>
+<div class="float-start">
+    <a href="{{ url_for('rally') }}" role="button" class="btn btn-secondary">もどる</a>
+    <a href="/map/{{ location.id }}" role="button" class="btn btn-outline-primary">マップを表示</a>
+<div>
+<p id="distance" class="mt-4 mb-0">現在地からの距離: ---m</p><br>
+{% if location.photo and location.photo != "no_image.jpg" %}
+<img src="https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//uploads/{{ location.photo }}" width="50%" class="border border-1 border-dark mb-3">
+{% endif %}
 
-<div class="my-3">
+<div class="mb-3">
     <div>
-        <button type="button" class="btn btn-primary my-1" data-bs-toggle="modal" data-bs-target="#with-photo">写真ありでチェックイン</button>
+        <button type="button" class="btn btn-primary my-1" data-bs-toggle="modal" data-bs-target="#with-photo">写真ありでチェックイン</button><br>
         <button type="button" class="btn btn-dark my-1" data-bs-toggle="modal" data-bs-target="#without-photo">写真なしでチェックイン</button>
 
         <div class="modal fade" id="with-photo" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalLabel" aria-hidden="true">
@@ -70,8 +75,8 @@
     <div class="card my-3 border border-2 border-warning">
         <div class="card-body">
             <h4>登場シーン</h4>
+            <img src="{{ location.image }}" width="100%" class="border border-1 border-dark mt-2 mb-3">
             <p>{{ location.scene }}</p>
-            <img src="{{ location.image }}" height="120" class="border border-1 border-dark">
         </div>
     </div>
     <div class="card my-3 border border-2 border-success">
@@ -87,5 +92,16 @@
 </div>
 
 <script src="{{ url_for ('static', filename='js/location.js') }}"></script>
+<script>
+    let watchId = navigator.geolocation.watchPosition(pos => {
+        let distance = hubenyFormula(pos.coords.latitude, pos.coords.longitude, {{ location.latitude }}, {{ location.longitude }});
+        document.getElementById("distance").innerHTML = "現在地からの距離: " + Math.round(distance).toLocaleString() + "m";
+        console.log(distance)
+    }, err => {}, {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+    });
+</script>
 
 {% endblock %}

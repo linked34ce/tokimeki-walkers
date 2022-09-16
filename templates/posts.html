@@ -33,7 +33,7 @@
         <div class="card-body">
             <p>{{ post.content | replace("\r", "<br>" | safe) }}</p>
             {% if post.photo != "no_image.jpg" %}
-            <img src="https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//uploads/{{ post.photo }}" width="100%">
+            <img src="https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//uploads/{{ post.photo }}" width="100%" class="border border-1 border-dark">
             {% endif %}
         </div>
     </div>
