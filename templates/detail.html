@@ -91,9 +91,11 @@
     </div>
 </div>
 
+<a href="{{ url_for('rally') }}" role="button" class="btn btn-secondary mt-2 mb-4">もどる</a>
+
 <script src="{{ url_for ('static', filename='js/location.js') }}"></script>
 <script>
-    let watchId = navigator.geolocation.watchPosition(pos => {
+    {# let watchId = navigator.geolocation.watchPosition(pos => {
         let distance = hubenyFormula(pos.coords.latitude, pos.coords.longitude, {{ location.latitude }}, {{ location.longitude }});
         document.getElementById("distance").innerHTML = "現在地からの距離: " + Math.round(distance).toLocaleString() + "m";
         console.log(distance)
@@ -101,7 +103,7 @@
         enableHighAccuracy: true,
         timeout: 5000,
         maximumAge: 0
-    });
+    }); #}
 </script>
 
 {% endblock %}

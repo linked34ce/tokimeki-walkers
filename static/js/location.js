@@ -34,7 +34,7 @@ function checkin(withPhoto, locationId, targetLatitude, targetLongitude, visitCo
             document.getElementById("message" + classSuffix).innerHTML = "<span class='text-danger'>*</span> チェックインに失敗しました<br>&nbsp;&nbsp;&nbsp;(前回のチェックインから24時間が経過していません)";
             document.getElementById("close" + classSuffix).setAttribute("onclick", "window.location.reload()");
         } else {
-            document.getElementById("message" + classSuffix).innerHTML = "<span class='text-success'>*</span> チェックインに成功しました";
+            document.getElementById("message" + classSuffix).innerHTML = "<span class='text-success'>*</span> チェックインに成功しました<br><span class='fw-bold'>* 右下の「とじる」ボタンを必ず押してください</span>";
             document.getElementById("close" + classSuffix).setAttribute("onclick", "reload(" + withPhoto + ", " + locationId + ")");
         }
     }, err => {
