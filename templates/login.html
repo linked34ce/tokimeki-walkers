@@ -10,12 +10,12 @@
                 <p id="result">{{ result | default("<br>") | safe }}</p>
                 <form method="POST">
                     <div class="mb-4">
-                        <label>ユーザ名</label>
-                        <input type="text" name="username" value="{{ username }}" autocomplete="username" class="form-control">
+                        <label>ユーザID</label>
+                        <input type="text" name="userid" value="{{ userid }}" autocomplete="username" class="form-control" required>
                     </div>
                     <div class="mb-4">
                         <label>パスワード</label>
-                        <input type="password" name="password" autocomplete="current-password" class="form-control">
+                        <input type="password" name="password" autocomplete="current-password" class="form-control" required>
                     </div>
                     <div class="text-center mb-3">
                         <button type="submit" class="btn btn-primary">ログイン</button>
