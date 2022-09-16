@@ -8,7 +8,6 @@ document.getElementById("checkin-with-photo").addEventListener("click", () => {
 
 function checkin(withPhoto, locationId, targetLatitude, targetLongitude, visitCount, lastVisit) {
     const LIMIT = 60000; // 1日: 86400000 1分: 60000
-    const JST = 32400000;
     const THRESHOLD = 1000000; // 実際は50m テスト用: 100000m
 
     let classSuffix = "";
@@ -30,7 +29,7 @@ function checkin(withPhoto, locationId, targetLatitude, targetLongitude, visitCo
         if (distance > THRESHOLD) {
             document.getElementById("message" + classSuffix).innerHTML = "<span class='text-danger'>*</span> チェックインに失敗しました<br>&nbsp;&nbsp;&nbsp;(距離が遠すぎます; " + Math.round(distance).toLocaleString() + "m)";
             document.getElementById("close" + classSuffix).setAttribute("onclick", "window.location.reload()");
-        } else if (Date.now() - visitDate.getTime() - JST < LIMIT && visitCount > 0) {
+        } else if (Date.now() - visitDate.getTime() < LIMIT && visitCount > 0) {
             document.getElementById("message" + classSuffix).innerHTML = "<span class='text-danger'>*</span> チェックインに失敗しました<br>&nbsp;&nbsp;&nbsp;(前回のチェックインから24時間が経過していません)";
             document.getElementById("close" + classSuffix).setAttribute("onclick", "window.location.reload()");
         } else {

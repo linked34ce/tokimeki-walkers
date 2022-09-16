@@ -1,6 +1,6 @@
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from math import radians, sin, cos, sqrt
 from random import randint
 from flask import Flask
@@ -254,7 +254,9 @@ def detail(location_id):
         location["visit_count"] = len(visits)
         if visits:
             location["photo"] = visits[0]["photo"]
-            location["last_visit"] = visits[0]["time"]
+            utc_time = datetime.strptime(visits[0]["time"], "%Y-%m-%d %H:%M:%S")
+            jst_time = utc_time + timedelta(hours=9)
+            location["last_visit"] = jst_time
 
         if location["visit_count"] < 1:
             message = "⚠️ この聖地は未訪問です"
@@ -323,6 +325,9 @@ def posts(page):
         posts = all_posts[lower_limit:upper_limit]
 
         for post in posts:
+            utc_time = datetime.strptime(post["time"], "%Y-%m-%d %H:%M:%S")
+            jst_time = utc_time + timedelta(hours=9)
+            post["time"] = jst_time
             sql3 = "select id, name, profile from Users where id = '{}';".format(post["userid"])
             cur.execute(sql3)
             poster = cur.fetchone()
@@ -604,7 +609,7 @@ def config():
         conn = sqlite3.connect(dbname)
     conn.row_factory = dict_factory
     cur = conn.cursor()
-    
+
     sql = "select profile from Users where id = '{}';".format(userid)
     cur.execute(sql)
     profile = cur.fetchone()["profile"]

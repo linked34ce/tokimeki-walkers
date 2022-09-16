@@ -8,7 +8,7 @@
     <a href="{{ url_for('rally') }}" role="button" class="btn btn-secondary">もどる</a>
     <a href="/map/{{ location.id }}" role="button" class="btn btn-outline-primary">マップを表示</a>
 <div>
-<p id="distance" class="mt-4 mb-0">現在地からの距離: ---m</p><br>
+<p id="distance" class="mt-4 mb-0">現在地からの距離: ---m<button class="btn btn-sm btn-outline-dark ms-2" onclick="getDistance()">更新</button></p><br>
 {% if location.photo and location.photo != "no_image.jpg" %}
 <img src="https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//uploads/{{ location.photo }}" width="50%" class="border border-1 border-dark mb-3">
 {% endif %}
@@ -95,15 +95,19 @@
 
 <script src="{{ url_for ('static', filename='js/location.js') }}"></script>
 <script>
-    {# let watchId = navigator.geolocation.watchPosition(pos => {
-        let distance = hubenyFormula(pos.coords.latitude, pos.coords.longitude, {{ location.latitude }}, {{ location.longitude }});
-        document.getElementById("distance").innerHTML = "現在地からの距離: " + Math.round(distance).toLocaleString() + "m";
-        console.log(distance)
-    }, err => {}, {
-        enableHighAccuracy: true,
-        timeout: 5000,
-        maximumAge: 0
-    }); #}
+    window.addEventListener("DOMContentLoaded", getDistance);
+
+    function getDistance() {
+        navigator.geolocation.getCurrentPosition(pos => {
+            let distance = hubenyFormula(pos.coords.latitude, pos.coords.longitude, {{ location.latitude }}, {{ location.longitude }});
+            document.getElementById("distance").innerHTML = "現在地からの距離: " + Math.round(distance).toLocaleString() + "m<button class='btn btn-sm btn-outline-dark ms-2' onclick='getDistance()'>更新</button>";
+            console.log(distance)
+        }, err => {}, {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        });
+    }
 </script>
 
 {% endblock %}
