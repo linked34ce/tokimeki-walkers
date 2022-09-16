@@ -29,10 +29,12 @@
                                         <label class="col-form-label">内容:</label>
                                         <textarea name="content{{ location.id }}" class="form-control"></textarea>
                                     </div>
-                                    <div class="mb-3">
-                                        <p class="col-form-label">画像:</p>
-                                        <img src="https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//uploads/{{ location.photo }}" height="150" class="border border-1 border-dark">
-                                    </div>
+                                    {% if location.photo != "no_image.jpg" %}
+                                        <div class="mb-3">
+                                            <p class="col-form-label">画像:</p>
+                                            <img src="https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//uploads/{{ location.photo }}" width="100%" class="border border-1 border-dark">
+                                        </div>
+                                    {% endif %}
                                 </div>
                                 <div class="modal-footer">
                                     <button type="submit" class="btn btn-primary">投稿する</button>
@@ -42,11 +44,14 @@
                         </div>
                     </div>
                 </div>
-                <p>{{ location.visited }}</p>
-                <p>訪問回数: {{ location.visit_count }}
             </div>
+            <div class="float-start ms-4 mt-2">
+                <p>{{ location.visited }}</p>
+                <p>訪問回数: {{ location.visit_count }}</p>
+            </div>
+            
         <div>
-            <img src="https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//uploads/{{ location.photo }}" height="120" class="float-start mx-4 border border-1 border-dark">
+            <img src="https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//uploads/{{ location.photo }}" width="100%" class="border border-1 border-dark">
         </div>
         </div>
     </div>

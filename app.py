@@ -183,9 +183,9 @@ def rally():
             visits = cur.fetchall()
             location["visit_count"] = len(visits)
             if location["visit_count"] > 0:
-                location["visited"] = "✅訪問済"
+                location["visited"] = "✅ 訪問済"
             else:
-                location["visited"] = "⚠️未訪問"
+                location["visited"] = "⚠️ 未訪問"
                 location["share_button"] = " disabled"     
             if not visits:
                 location["photo"] = NO_IMAGE
@@ -226,9 +226,10 @@ def post(location_id):
         sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where userid = '{}' and location_id = '{}' order by time desc;".format(userid, location_id)
         cur.execute(sql1)
         latest_visit = cur.fetchone()
+        location_id = latest_visit["location_id"]
         photo = latest_visit["photo"]
 
-        sql2 = "insert into Posts (userid, content, photo) values ('{}', '{}', '{}');".format(userid, escaped_content, photo)
+        sql2 = "insert into Posts (userid, location_id, content, photo) values ('{}', {}, '{}', '{}');".format(userid,location_id, escaped_content, photo)
         cur.execute(sql2)
         conn.commit()
         cur.close()
@@ -275,9 +276,9 @@ def detail(location_id):
             location["last_visit"] = visits[0]["time"]
 
         if location["visit_count"] < 1:
-            message = "⚠️この聖地は未訪問です"
+            message = "⚠️ この聖地は未訪問です"
         else:
-            message = "✅この聖地は{}回訪問済みです".format(location["visit_count"])
+            message = "✅ この聖地は{}回訪問済みです".format(location["visit_count"])
 
         for i in range(len(locations)): 
             distance = hubeny_formula(location["latitude"], location["longitude"], 
@@ -330,7 +331,7 @@ def posts(page):
             conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        sql1 = "select * from Posts order by time desc;"
+        sql1 = "select Posts.id, userid, content, photo, time, location_id, name as location_name from Posts inner join Locations on Posts.location_id = Locations.id order by time desc;"
         cur.execute(sql1)
         all_posts = cur.fetchall()
 
@@ -345,9 +346,10 @@ def posts(page):
         posts = all_posts[lower_limit:upper_limit]
 
         for post in posts:
-            sql3 = "select name, profile from Users where id = '{}';".format(post["userid"])
+            sql3 = "select id, name, profile from Users where id = '{}';".format(post["userid"])
             cur.execute(sql3)
             poster = cur.fetchone()
+            post["userid"] = poster["id"]
             post["username"] = poster["name"]
             if poster["profile"]:
                 post["profile"] = poster["profile"]
