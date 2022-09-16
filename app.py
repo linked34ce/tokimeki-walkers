@@ -44,7 +44,6 @@ class User():
 
     def __init__(self, id):
         record = None
-        # username_pattern = re.compile(r'^(?!.*(\s)).*$')
         userid_pattern = re.compile(r'^[a-zA-Z0-9]+$')
 
         if userid_pattern.match(id):
@@ -56,7 +55,6 @@ class User():
                 conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
-            #name = name.replace("'", "''")
             sql = "select * from Users where id = '{}';".format(id)
             cur.execute(sql)
             record = cur.fetchone()
@@ -76,23 +74,6 @@ class User():
     
     def get_name(self):
         return self.name
-
-    # def get_by_id(self, id):
-    #     try:
-    #         dbname = DB_NAME_LOCAL
-    #         conn = sqlite3.connect(dbname)
-    #     except sqlite3.OperationalError:
-    #         dbname = DB_NAME_REMOTE
-    #         conn = sqlite3.connect(dbname)
-    #     conn.row_factory = dict_factory
-    #     cur = conn.cursor()
-    #     sql = "select * from Users where id = {};".format(id)
-    #     cur.execute(sql)
-    #     record = cur.fetchone()
-    #     conn.commit()
-    #     cur.close()
-    #     conn.close()
-    #     return User(record["name"])
         
 def dict_factory(cursor, row):
    dic = {}
@@ -141,7 +122,6 @@ def main():
         num_of_visited_locs = 0
         num_of_photos = 0
         for visit in visits:
-            # print(visit["location_id"])
             if visit["location_id"] not in location_ids:
                 location_ids.append(visit["location_id"])
                 num_of_visited_locs += 1
@@ -207,8 +187,6 @@ def post(location_id):
     if request.method == "POST":
         if User.id:
             userid = User.id
-            user = User(userid)
-            username = user.get_name()
         else:
             return redirect(url_for("login"))
         
@@ -319,11 +297,7 @@ def hubeny_formula(latitude1, longitude1, latitude2, longitude2):
 @login_required
 def posts(page):
     if request.method == "GET":
-        if User.id:
-            userid = User.id
-            user = User(userid)
-            username = user.get_name()
-        else:
+        if not User.id:
             return redirect(url_for("login"))
         
         try:
@@ -369,8 +343,6 @@ def checkinWithoutPhoto(location_id):
     if request.method == "GET":
         if User.id:
             userid = User.id
-            user = User(userid)
-            username = user.get_name()
             photo = NO_IMAGE
             try:
                 dbname = DB_NAME_LOCAL
@@ -435,14 +407,12 @@ def upload(location_id):
             sql3 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and userid = '{}' order by time desc;".format(location_id, userid)
             cur.execute(sql3)
             visits = cur.fetchall()
-            # print(visits)
 
             if len(visits) < 2:
                 numbers = []
                 for i in range(len(lyrics)):
                     if not lyrics[i]:
                         numbers.append(i)
-                # print(numbers)
                 sql4 = "update Lyrics set lyric{} = 1 where userid = '{}';".format(numbers[randint(0, len(numbers))], userid)
                 cur.execute(sql4)
 
@@ -457,11 +427,7 @@ def upload(location_id):
 @login_required
 def map(location_id):
     if request.method == "GET":
-        if User.id:
-            userid = User.id
-            user = User(userid)
-            username = user.get_name()
-        else:
+        if not User.id:
             return redirect(url_for("login"))
         
         try:
@@ -500,8 +466,6 @@ def lyrics():
     if request.method == "GET":
         if User.id:
             userid = User.id
-            user = User(userid)
-            username = user.get_name()
         else:
             return redirect(url_for("login"))
         
@@ -531,7 +495,6 @@ def signup():
         password_confirm = request.form.get("password-confirm")
 
         result = "<span class='text-danger'>*</span> "
-        #username_pattern = re.compile(r'^(?!.*(\s)).*$')
         userid_pattern = re.compile(r'^[a-zA-Z0-9]+$')
         password_pattern = re.compile(r'^[a-zA-Z0-9]+$')
 
@@ -559,13 +522,11 @@ def signup():
                 conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
-            #escaped_username =  username.replace("'", "''")
             sql1 = "insert into Users (id, name, password) values ('{}', '{}', '{}');".format(userid, userid, password_hash)
 
             try:
                 cur.execute(sql1)
             except sqlite3.IntegrityError:
-                #escaped_username =  username.replace("'", "\'")
                 result += 'ユーザID "{}" はすでに使用されています'.format(userid)
                 userid = ""
                 cur.close()
@@ -575,9 +536,6 @@ def signup():
 
                 result = "<span class='text-success'>*</span> ユーザ登録に成功しました"
                 conn.commit()
-
-                user = User(userid)
-                # username = user.get_name()
 
                 sql2 = "insert into Lyrics (userid) values ('{}');".format(userid)
                 cur.execute(sql2)
@@ -612,7 +570,6 @@ def login():
         elif len(password) < 8 or not password_pattern.match(password):
             result += "パスワードは8文字以上の半角英数字です"
         elif not user.id:
-            #escaped_username =  username.replace("'", "\'")
             result += 'ユーザID "{}" は登録されていません'.format(userid)
             userid = ""
         elif user.password:
@@ -639,8 +596,6 @@ def config():
     else:
         return redirect(url_for("login"))
 
-    #username = current_username
-
     try:
         dbname = DB_NAME_LOCAL
         conn = sqlite3.connect(dbname)
@@ -649,7 +604,7 @@ def config():
         conn = sqlite3.connect(dbname)
     conn.row_factory = dict_factory
     cur = conn.cursor()
-    #escaped_username =  username.replace("'", "''")
+    
     sql = "select profile from Users where id = '{}';".format(userid)
     cur.execute(sql)
     profile = cur.fetchone()["profile"]
