@@ -266,10 +266,12 @@ def detail(location_id):
         for i in range(len(locations)): 
             distance = hubeny_formula(location["latitude"], location["longitude"], 
                                         locations[i]["latitude"], locations[i]["longitude"])
-            locations[i]["distance"] = "{:,}".format(round(distance))
+            locations[i]["distance"] = distance
 
         locations.sort(key=lambda x: x["distance"])
         nearest_locations = locations[0:3]
+        for i in range(3): 
+            nearest_locations[i]["distance"] = "{:,}".format(round(nearest_locations[i]["distance"]))
 
         return render_template("detail.html", username=username, location=location, message=message, 
                                 nearest_locations=nearest_locations)
