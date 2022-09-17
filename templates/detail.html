@@ -8,17 +8,21 @@
     <a href="{{ url_for('rally') }}" role="button" class="btn btn-secondary">もどる</a>
     <a href="/map/{{ location.id }}" role="button" class="btn btn-outline-primary">マップを表示</a>
 <div>
-<p id="distance" class="mt-4 mb-0">現在地からの距離: ---m<button class="btn btn-sm btn-outline-dark ms-2" onclick="getDistance()">更新</button></p><br>
-{% if location.photo and location.photo != "no_image.jpg" %}
-<img src="https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//uploads/{{ location.photo }}" width="50%" class="border border-1 border-dark mb-3">
-{% endif %}
+<p id="distance" class="mt-4 mb-0">
+    現在地からの距離: ---m<br>
+    <span class="fw-bold">* チェックインが可能か判別しています</span>
+</p><br>
 
 <div class="mb-3">
     <div>
-        <button type="button" class="btn btn-primary my-1" data-bs-toggle="modal" data-bs-target="#with-photo">写真ありでチェックイン</button><br>
-        <button type="button" class="btn btn-dark my-1" data-bs-toggle="modal" data-bs-target="#without-photo">写真なしでチェックイン</button>
+        <button id="button-checkin-with-photo" type="button" class="btn btn-primary my-1 disabled" data-bs-toggle="modal" data-bs-target="#with-photo">写真ありでチェックイン</button><br>
+        <button id="button-checkin-without-photo" type="button" class="btn btn-dark my-1 disabled" data-bs-toggle="modal" data-bs-target="#without-photo">写真なしでチェックイン</button><br>
 
-        <div class="modal fade" id="with-photo" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalLabel" aria-hidden="true">
+        {% if location.photo and location.photo != "no_image.jpg" %}
+        <img src="https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//uploads/{{ location.photo }}" width="50%" class="border border-1 border-dark mt-3 mb-2">
+        {% endif %}
+
+        <div class="modal fade" id="with-photo" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <form id="upload-form" action="/upload/{{ location.id }}" method="post" enctype="multipart/form-data">
@@ -30,33 +34,26 @@
                             <input id="upload-photo" name="photo" type="file" accept="image/*" capture="camera" class="form-control" required>
                             <p id="uploadable" class="mt-3"></p>
                             <div id="preview" class="mt-3"></div>
-                            <button id="checkin-with-photo" type="button" class="btn btn-primary mt-3" style="display: none;">チェックイン</button>
-                            <p id="message-with-photo" class="mt-3" style="display: none;">「{{ location.name }}」にチェックインしますか？</p>         
+                            <p id="checkin-question" class="mt-3" style="display: none;">「{{ location.name }}」にチェックインしますか？</p>         
                         </div>
-                        <div class="modal-footer">
-                            <div id="confirm-buttons-with-photo" style="display: none;">
-                                <button type="button" class="btn btn-success" onclick="checkin(1, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }}, {{ location.visit_count }}, '{{ location.last_visit }}')">はい</button>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
-                            </div>
-                            <button id="close-with-photo" type="button" class="btn btn-secondary" data-bs-dismiss="modal">とじる</button>
+                        <div id="footer" class="modal-footer" style="display: none;">
+                            <button class="btn btn-success" onclick="window.reload(true, {{ location.id }})">はい</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
                         </div>
                     </form>
                 </div>       
             </div>
         </div>
 
-        <div class="modal fade" id="without-photo" tabindex="-1" data-bs-backdrop="static" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal fade" id="without-photo" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-body">
-                        <p id="message-without-photo">「{{ location.name }}」にチェックインしますか？</p>
+                        <p>「{{ location.name }}」にチェックインしますか？</p>
                     </div>
-                    <div class="modal-footer">
-                        <div id="confirm-buttons-without-photo">
-                            <button class="btn btn-success" onclick="checkin(0, {{ location.id }}, {{ location.latitude}}, {{ location.longitude }}, {{ location.visit_count }}, '{{ location.last_visit }}')">はい</button>
-                            <button class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
-                        </div>
-                            <button id="close-without-photo" class="btn btn-secondary disabled" data-bs-dismiss="modal" style="display: none;">とじる</button>
+                    <div class="modal-footer">            
+                        <button class="btn btn-success" onclick="window.reload(false, {{ location.id }})">はい</button>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
                     </div>
                 </div>
             </div>
@@ -95,19 +92,44 @@
 
 <script src="{{ url_for ('static', filename='js/location.js') }}"></script>
 <script>
-    window.addEventListener("DOMContentLoaded", getDistance);
+    const THRESHOLD = 500; // 実際は50m テスト用: 100000m
+    let discriminator = document.getElementById("distance");
 
-    function getDistance() {
-        navigator.geolocation.getCurrentPosition(pos => {
-            let distance = hubenyFormula(pos.coords.latitude, pos.coords.longitude, {{ location.latitude }}, {{ location.longitude }});
-            document.getElementById("distance").innerHTML = "現在地からの距離: " + Math.round(distance).toLocaleString() + "m<button class='btn btn-sm btn-outline-dark ms-2' onclick='getDistance()'>更新</button>";
-            console.log(distance)
-        }, err => {}, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-        });
-    }
+    let watchId = navigator.geolocation.watchPosition(pos => {
+        let distance = hubenyFormula(pos.coords.latitude, pos.coords.longitude, {{ location.latitude }}, {{ location.longitude }});
+        let buttonCheckinWithPhoto = document.getElementById("button-checkin-with-photo");
+        let buttonCheckinWithoutPhoto = document.getElementById("button-checkin-without-photo");
+        discriminator.innerHTML = "現在地からの距離: " + Math.round(distance).toLocaleString() + "m<br>";
+        if (distance <= THRESHOLD) {
+            buttonCheckinWithPhoto.className = "btn btn-primary my-1";
+            buttonCheckinWithoutPhoto.className = "btn btn-dark my-1";
+            discriminator.innerHTML += "<span class='fw-bold'><span class='text-success'>*</span> チェックイン可能です</span>";
+        } else {
+            buttonCheckinWithPhoto.className = "btn btn-primary my-1 disabled";
+            buttonCheckinWithoutPhoto.className = "btn btn-dark my-1 disabled";
+            discriminator.innerHTML += "<span class='fw-bold'><span class='text-danger'>*</span> チェックインできません</span>";
+        }
+    }, err => {
+        let err_msg = "位置情報の取得に失敗しました:\n";
+        switch (err.code) {
+            case 1:
+                err_msg += "位置情報サービスの利用が許可されていません";
+                break;
+            case 2:
+                err_msg = "お使いの端末の位置を判定することができません";
+                break;
+            case 3:
+                err_msg = "位置情報の取得に時間がかかっています";
+                break;
+        }
+        let discriminator = document.getElementById("distance");
+        discriminator.innerHTML = "現在地からの距離: ---m<br><span class='fw-bold'><span class='text-danger'>*</span> チェックインできません</span>";
+        window.alert(err_msg);
+    }, {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+    });
 </script>
 
 {% endblock %}
