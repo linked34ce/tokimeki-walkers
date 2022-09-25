@@ -92,7 +92,7 @@
 
 <script src="{{ url_for ('static', filename='js/location.js') }}"></script>
 <script>
-    const THRESHOLD = 500; // 実際は50m テスト用: 100000m
+    const THRESHOLD = 50; // 実際は50m テスト用: 100000m
     let discriminator = document.getElementById("distance");
 
     let watchId = navigator.geolocation.watchPosition(pos => {
