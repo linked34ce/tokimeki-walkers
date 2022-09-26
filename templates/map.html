@@ -26,6 +26,7 @@
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
 <script src="{{ url_for('static', filename='js/leaflet.sprite.js') }}"></script>
 <script src="{{ url_for('static', filename='js/leaflet.rotatedMarker.js') }}"></script>
+<script src="{{ url_for('static', filename='js/fulltilt.js') }}"></script>
 <script>
     let centralLocationId = {{ central_location.id }};
     let map = L.map("map", { zoomControl: false }).setView([{{ central_location.latitude }}, {{central_location.longitude }}], 14);
@@ -96,7 +97,8 @@
             function success(pos) {
                 let lat = pos.coords.latitude;
                 let lng = pos.coords.longitude;
-                let head = pos.coords.heading;
+                //let head = pos.coords.heading;
+                let head = getHeading();
                 map.setView([lat, lng]);
                 if (currentMarker) {
                     map.removeLayer(currentMarker);
@@ -159,6 +161,17 @@
             currentLocationButton.className = "btn btn-primary text-light ms-2";
             currentMarkerHidden = true;
         }
+    }
+
+    function getHeading(){
+        var promise = FULLTILT.getDeviceOrientation({'type': 'world'});
+		promise.then(function(orientationControl) {
+			orientationControl.listen(function() {
+				var screenAdjustedEvent = orientationControl.getScreenAdjustedEuler();
+				var heading = screenAdjustedEvent.alpha;
+                return heading;
+			});
+		});
     }
 </script>
 </body>
