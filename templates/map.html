@@ -97,8 +97,6 @@
             function success(pos) {
                 let lat = pos.coords.latitude;
                 let lng = pos.coords.longitude;
-                //let head = pos.coords.heading;
-                let head = getHeading();
                 map.setView([lat, lng]);
                 if (currentMarker) {
                     map.removeLayer(currentMarker);
@@ -109,10 +107,9 @@
                         icon: L.icon(
                             {
                             iconUrl: "{{ url_for('static', filename='images/current_loc.png') }}",
-                            iconSize: [50, 50],
+                            iconSize: [56, 56],
                             }
                         ),
-                        rotationAngle: head,
                     }
                 ).addTo(map);
                 currentLocationButton.setAttribute("onClick", "currentWatchReset()");
