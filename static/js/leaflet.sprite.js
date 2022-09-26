@@ -34,9 +34,10 @@
                 color = color || "blue";
                 return L.icon({
                     className: "leaflet-sprite leaflet-sprite-" + color,
-                    iconSize: [24, 41],
-                    iconAnchor: [12, 41],
+                    iconSize: [25, 41],
+                    iconAnchor: [13, 41],
                     iconUrl: sources.blank,
+                    popupAnchor: [0, -38],
                 });
             };
 

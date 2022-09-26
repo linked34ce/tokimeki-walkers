@@ -16,8 +16,6 @@
 </head>
 
 <body>
-{# <h1 class="mb-3">マップ</h1>
-<a href="{{ url_for('main') }}" role="button" class="btn btn-secondary">もどる</a> #}
 
 <div id="map"></div>
 
@@ -27,6 +25,7 @@
 <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
 <script src="{{ url_for('static', filename='js/leaflet.sprite.js') }}"></script>
+<script src="{{ url_for('static', filename='js/leaflet.rotatedMarker.js') }}"></script>
 <script>
     let centralLocationId = {{ central_location.id }};
     let map = L.map("map", { zoomControl: false }).setView([{{ central_location.latitude }}, {{central_location.longitude }}], 14);
@@ -44,16 +43,34 @@
       };
     buttons.addTo(map);
 
+    let redMarker = null;
+
     {% for location in locations %}
-    var marker = L.marker(
-        [{{ location.latitude }}, {{ location.longitude }}],
-        { icon: L.spriteIcon("blue") }
-    ).addTo(map);
+     var marker = L.marker(
+            [{{ location.latitude }}, {{ location.longitude }}],
+            { icon: L.spriteIcon("blue") }
+        ).addTo(map)
+        .bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='125vw'>");
+
     if (centralLocationId === {{ location.id }}) {
-        marker.bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='115vw'>").openPopup();
-    } else {
-        marker.bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='115vw'>");
+       marker.openPopup();
+       redMarker = L.marker(
+            [{{ location.latitude }}, {{ location.longitude }}],
+            { icon: L.spriteIcon("red") }
+        ).addTo(map)
+        .bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='125vw'>");
     }
+
+    marker.on("click", () => {
+        if (redMarker) {
+            map.removeLayer(redMarker);
+        }
+        redMarker = L.marker(
+            [{{ location.latitude }}, {{ location.longitude }}],
+            { icon: L.spriteIcon("red") }
+        ).addTo(map)
+        .bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='125vw'>");
+    })
     {% endfor %}
 
     let onMap = document.getElementById("on-map");
@@ -79,13 +96,22 @@
             function success(pos) {
                 let lat = pos.coords.latitude;
                 let lng = pos.coords.longitude;
+                let head = pos.coords.heading;
                 map.setView([lat, lng]);
                 if (currentMarker) {
                     map.removeLayer(currentMarker);
                 }
                 currentMarker = L.marker(
-                    [lat, lng],
-                    { icon: L.spriteIcon("red") }
+                    [lat, lng], 
+                    {
+                        icon: L.icon(
+                            {
+                            iconUrl: "{{ url_for('static', filename='images/current_loc.png') }}",
+                            iconSize: [50, 50],
+                            }
+                        ),
+                        rotationAngle: head,
+                    }
                 ).addTo(map);
                 currentLocationButton.setAttribute("onClick", "currentWatchReset()");
                 currentLocationButton.innerHTML = "現在地を非表示";
