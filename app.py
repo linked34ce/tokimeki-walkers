@@ -536,7 +536,7 @@ def signup():
                 conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
-            sql1 = "insert into Users (id, name, password) values ('{}', '{}', '{}');".format(userid, userid, password_hash)
+            sql1 = "insert into Users (id, name, password, profile) values ('{}', '{}', '{}', '');".format(userid, userid, password_hash)
 
             try:
                 cur.execute(sql1)
