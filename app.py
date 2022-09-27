@@ -13,6 +13,8 @@ import sqlite3
 import boto3
 import botocore
 from dotenv import load_dotenv
+from PIL import Image
+from io import BytesIO
 
 DB_NAME_REMOTE = "tokimeki-walkers/main.db"
 DB_NAME_LOCAL  = "./main.db"
@@ -383,8 +385,14 @@ def upload(location_id):
     if request.method == "POST":
         if User.id:
             file = request.files["photo"]
-            filename = datetime.now().strftime("%Y%m%d_%H%M%S_") + secure_filename(file.filename) 
+            filename = datetime.now().strftime("%Y%m%d_%H%M%S_") + secure_filename(file.filename)
             file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+            with open(UPLOAD_FOLDER + filename, 'rb') as inputfile:
+                im = Image.open(inputfile)
+                im_io = BytesIO()
+                im.save(im_io, 'JPEG', quality=30)
+            with open(UPLOAD_FOLDER + filename, mode='wb') as outputfile:
+                outputfile.write(im_io.getvalue()) 
             try:
                 client.upload_file(UPLOAD_FOLDER + filename, BUCKET_NAME, BUCKET_UPLOAD + filename, 
                 ExtraArgs={"ContentType": "image/jpeg", "ACL": "public-read"})
@@ -393,9 +401,8 @@ def upload(location_id):
             except botocore.exceptions.NoCredentialsError:
                 pass
             os.remove(UPLOAD_FOLDER + filename)
+
             userid = User.id
-            user = User(userid)
-            username = user.get_name()
             try:
                 dbname = DB_NAME_LOCAL
                 conn = sqlite3.connect(dbname)

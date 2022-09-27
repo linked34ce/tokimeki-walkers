@@ -15,8 +15,8 @@
 
 <div class="mb-3">
     <div>
-        <button id="button-checkin-with-photo" type="button" class="btn btn-primary my-1 disabled" data-bs-toggle="modal" data-bs-target="#with-photo">写真ありでチェックイン</button><br>
-        <button id="button-checkin-without-photo" type="button" class="btn btn-dark my-1 disabled" data-bs-toggle="modal" data-bs-target="#without-photo">写真なしでチェックイン</button><br>
+        <button id="button-checkin-with-photo" type="button" class="btn btn-primary my-1" data-bs-toggle="modal" data-bs-target="#with-photo">写真ありでチェックイン</button><br>
+        <button id="button-checkin-without-photo" type="button" class="btn btn-dark my-1" data-bs-toggle="modal" data-bs-target="#without-photo">写真なしでチェックイン</button><br>
 
         {% if location.photo and location.photo != "no_image.jpg" %}
         <img src="https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//uploads/{{ location.photo }}" width="50%" class="border border-1 border-dark mt-3 mb-2">
@@ -99,8 +99,9 @@
         let distance = hubenyFormula(pos.coords.latitude, pos.coords.longitude, {{ location.latitude }}, {{ location.longitude }});
         let buttonCheckinWithPhoto = document.getElementById("button-checkin-with-photo");
         let buttonCheckinWithoutPhoto = document.getElementById("button-checkin-without-photo");
-        discriminator.innerHTML = "現在地からの距離: " + Math.round(distance).toLocaleString() + "m<br>";
-        if (distance <= THRESHOLD) {
+        let roundedDistance = Math.round(distance);
+        discriminator.innerHTML = "現在地からの距離: " + roundedDistance.toLocaleString() + "m<br>";
+        if (roundedDistance <= THRESHOLD) {
             buttonCheckinWithPhoto.className = "btn btn-primary my-1";
             buttonCheckinWithoutPhoto.className = "btn btn-dark my-1";
             discriminator.innerHTML += "<span class='fw-bold'><span class='text-success'>*</span> チェックイン可能です</span>";
