@@ -24,6 +24,7 @@ BUCKET_URL = "https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com/"
 BUCKET_UPLOAD = "/uploads/"
 DIR_NAME = "static/cards/"
 NO_IMAGE = "no_image.jpg"
+NUM_OF_LYRICS = 47
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.urandom(24)
@@ -132,8 +133,7 @@ def main():
                     location_ids_with_photo.append(visit["location_id"])
                     num_of_photos += 1
 
-        num_of_lyrics = 31
-        lyrics = lyrics[1:num_of_lyrics + 1]
+        lyrics = lyrics[1:NUM_OF_LYRICS + 1]
 
         return render_template("index.html", username=username, num_of_locations=num_of_locations,
                 num_of_visited_locs=num_of_visited_locs, num_of_photos=num_of_photos, lyrics=lyrics)
@@ -494,8 +494,7 @@ def lyrics():
         cur.execute(sql)
         lyrics = cur.fetchone()
 
-        num_of_lyrics = 31
-        lyrics = lyrics[1:num_of_lyrics + 1]
+        lyrics = lyrics[1:NUM_OF_LYRICS + 1]
         
         return render_template("lyrics.html", lyrics=lyrics)
 
