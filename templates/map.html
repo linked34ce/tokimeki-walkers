@@ -51,7 +51,7 @@
             [{{ location.latitude }}, {{ location.longitude }}],
             { icon: L.spriteIcon("blue") }
         ).addTo(map)
-        .bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='125vw'>");
+        .bindPopup("<a href='/rally/{{ location.id }}/0'>{{ location.name }}</a><br><img src='{{ location.image }}' width='125vw'>");
 
     if (centralLocationId === {{ location.id }}) {
        marker.openPopup();
@@ -59,7 +59,7 @@
             [{{ location.latitude }}, {{ location.longitude }}],
             { icon: L.spriteIcon("red") }
         ).addTo(map)
-        .bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='125vw'>");
+        .bindPopup("<a href='/rally/{{ location.id }}/0'>{{ location.name }}</a><br><img src='{{ location.image }}' width='125vw'>");
     }
 
     marker.on("click", () => {
@@ -70,14 +70,14 @@
             [{{ location.latitude }}, {{ location.longitude }}],
             { icon: L.spriteIcon("red") }
         ).addTo(map)
-        .bindPopup("<a href='/rally/{{ location.id }}'>{{ location.name }}</a><br><img src='{{ location.image }}' width='125vw'>");
+        .bindPopup("<a href='/rally/{{ location.id }}/0'>{{ location.name }}</a><br><img src='{{ location.image }}' width='125vw'>");
     })
     {% endfor %}
 
     let onMap = document.getElementById("on-map");
     let href = "/";
     if (centralLocationId > 0) {
-        href = "/rally/" + centralLocationId;
+        href = "/rally/" + centralLocationId + "/0";
     }
 
     onMap.innerHTML = "<a href='" + href + "' class='btn btn-dark text-light'>もどる</a>";

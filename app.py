@@ -221,9 +221,9 @@ def post(location_id):
     else:
         return redirect(url_for("login"))
 
-@app.route("/rally/<int:location_id>", methods=["GET"])
+@app.route("/rally/<int:location_id>/<int:unlocked_number>", methods=["GET"])
 @login_required
-def detail(location_id):
+def detail(location_id, unlocked_number=0):
     if request.method == "GET":
         if User.id:
             userid = User.id
@@ -276,7 +276,7 @@ def detail(location_id):
             nearest_locations[i]["distance"] = "{:,}".format(round(nearest_locations[i]["distance"]))
 
         return render_template("detail.html", username=username, location=location, message=message, 
-                                nearest_locations=nearest_locations)
+                                nearest_locations=nearest_locations, unlocked_number=unlocked_number)
 
 def hubeny_formula(latitude1, longitude1, latitude2, longitude2):
     SEMI_MAJOR_AXIS = 6378137
@@ -366,9 +366,10 @@ def checkinWithoutPhoto(location_id):
             conn.commit()
             cur.close()
             conn.close()
+            unlocked_number = 0
         else:
             return redirect(url_for("login"))
-        return redirect(url_for("detail", location_id=location_id))
+        return redirect(url_for("detail", location_id=location_id,  unlocked_number=unlocked_number))
 
 def createHTML(filename):
     html = "<html lang='ja'><head><meta charset='utf-8'>"
@@ -413,21 +414,22 @@ def upload(location_id):
             sql1 = "insert into Visits (userid, location_id, photo) values ('{}', {}, '{}');".format(userid, location_id, filename)
             cur.execute(sql1)
 
-            sql2 = "select * from lyrics where userid = '{}';".format(userid)
+            sql2 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and userid = '{}' order by time desc;".format(location_id, userid)
             cur.execute(sql2)
-            lyrics = cur.fetchone()
-            lyrics = lyrics[1:len(lyrics)]
-
-            sql3 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and userid = '{}' order by time desc;".format(location_id, userid)
-            cur.execute(sql3)
             visits = cur.fetchall()
+
+            sql3 = "select * from lyrics where userid = '{}';".format(userid)
+            cur.execute(sql3)
+            lyrics = cur.fetchone()
+            unlocked_number = 0
 
             if len(visits) < 2:
                 numbers = []
-                for i in range(len(lyrics)):
+                for i in range(1, NUM_OF_LYRICS + 1):
                     if not lyrics[i]:
                         numbers.append(i)
-                sql4 = "update Lyrics set lyric{} = 1 where userid = '{}';".format(numbers[randint(0, len(numbers))], userid)
+                unlocked_number = numbers[randint(0, len(numbers) - 1)]
+                sql4 = "update Lyrics set lyric{} = 1 where userid = '{}';".format(unlocked_number, userid)
                 cur.execute(sql4)
 
             conn.commit()
@@ -435,7 +437,7 @@ def upload(location_id):
             conn.close()
         else:
             return redirect(url_for("login"))
-    return redirect(url_for("detail", location_id=location_id))
+    return redirect(url_for("detail", location_id=location_id, unlocked_number=unlocked_number))
     
 @app.route("/map/<int:location_id>", methods=["GET"])
 @login_required

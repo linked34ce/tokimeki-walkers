@@ -8,4 +8,5 @@ static/uploads
 .env
 .venv
 nohup.out
+temp.py
 *.DS_Store
