@@ -29,3 +29,13 @@ br {
     border-style: solid;
     border-width: 0 3px 0 0;
 }
+
+#cdcs {
+    background-image: url("https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//src/cdcs.jpg");
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: contain;
+    text-shadow: 1px 1px 0 #FFFFFF, -1px -1px 0 #FFFFFF, -1px 1px 0 #FFFFFF, 1px -1px 0 #FFFFFF, 0px 1px 0 #FFFFFF, 0-1px 0 #FFFFFF, -1px 0 0 #FFFFFF, 1px 0 0 #FFFFFF;
+    margin: 0px auto;
+    padding: 0px auto;
+}

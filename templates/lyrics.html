@@ -8,30 +8,27 @@
 
 <div class="my-3">
     <p>各スポットで写真を撮影して，歌詞カードを完成させよう!!</p>
-    <div class="card border border-2 border-primary my-3">
+    <div class="card border border-2 border-dark my-3" style="background-color: lightcyan;">
         <div class="card-header">
             <h4 class="fst-italic">Colorful Dreams! Colorful Smiles!</h4>
             <p id="rate">歌詞集め率: 0.00%</p>
         </div>
-        <div class="card-body">
+        <div id="cdcs" class="card-body">
             <div>
                 <p id="lyric1">夢を奏でよう Rainbow World!</p>
                 <p id="lyric2">(Colorful World! Colorful!</p>
                 <p id="lyric3">Colorful Dream! Colorful! Yeah!!)</p>
-                <br>
                 <p id="lyric4">虹色染まる季節 走りだした Days</p>
                 <p id="lyric5">目覚めたての夢から こぼれる光 まぶしくて</p>
                 <p id="lyric6"><ruby><rb>瞬間</rb><rp> (</rp><rt>いま</rt><rp>)</rp></ruby> 未来 とまらない 高鳴り感じてる？</p>
                 <p id="lyric7">(…I feel the same as you…!!)</p>
                 <p id="lyric8">聞こえるよ 胸のドキドキ　合図にはじめよう</p>
-                <br>
                 <p id="lyric9">流れてく雲 通り雨 頬を濡らしたって</p>
                 <p id="lyric10">青く澄んだ空 また広がるよ</p>
                 <p id="lyric11">歌おう 歌おう (Together!)</p>
                 <p id="lyric12">心つないだら Let's go!</p>
                 <p id="lyric13">一緒に さぁ (いくよ、せーの！)</p>
                 <p id="lyric14">You go, I go! We go!!</p>
-                <br>
                 <p id="lyric15">Dream on!!</p>
                 <p id="lyric16">夢と夢 響く Melody!</p>
                 <p id="lyric17">どこまでも 広がってくよ</p>
@@ -47,7 +44,7 @@
             </div>
         </div>
     </div>
-    <div class="card border border-2 border-primary my-3">
+    <div id="nsnm" class="card border border-2 border-primary my-3">
         <div class="card-header">
             <h4 class="fst-italic">NEO SKY, NEO MAP!</h4>
             <p id="lyric">歌詞集め率: 0.00%</p>
@@ -58,18 +55,15 @@
                 <p id="lyric28">何かが生まれかけてるんだ</p>
                 <p id="lyric29">それを伝えたいよ</p>
                 <p id="lyric30">君へと伝えたいんだ</p>
-                <br>
                 <p id="lyric31">毎日見上げる空の</p>
                 <p id="lyric32">青さも季節ごと変わって</p>
                 <p id="lyric33">決まりはないね</p>
                 <p id="lyric34">自由に描いてと誘われてるよ</p>
-                <br>
                 <p id="lyric35">あせらないで行こう</p>
                 <p id="lyric36">ときめく時間を楽しんで</p>
                 <p id="lyric37">もっと！</p>
                 <p id="lyric38">みんな自分が好きなことを</p>
                 <p id="lyric39">追求しちゃおう</p>
-                <br>
                 <p id="lyric40">どこに向かうか まだわからないけど</p>
                 <p id="lyric41">面白そうな未来が待ってると</p>
                 <p id="lyric42">笑いあえる君がいれば嬉しい</p>
@@ -105,7 +99,9 @@
     if ({{ lyric }}) {
         count++;
     } else {
-        document.getElementById("lyric" + number).innerHTML = "○△※&%○△※&%";
+        document.getElementById("lyric" + number).style.color = "black";
+        document.getElementById("lyric" + number).style.textShadow = "none";
+        document.getElementById("lyric" + number).style.filter = "blur(4px) drop-shadow(0px 0px 300px black)";
     }
     {% endfor %}
     let lyricHuntRate = count / number;

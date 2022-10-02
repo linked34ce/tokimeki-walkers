@@ -25,8 +25,6 @@
 <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
 <script src="{{ url_for('static', filename='js/leaflet.sprite.js') }}"></script>
-<script src="{{ url_for('static', filename='js/leaflet.rotatedMarker.js') }}"></script>
-<script src="{{ url_for('static', filename='js/fulltilt.js') }}"></script>
 <script>
     let centralLocationId = {{ central_location.id }};
     let map = L.map("map", { zoomControl: false }).setView([{{ central_location.latitude }}, {{central_location.longitude }}], 14);
