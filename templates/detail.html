@@ -146,7 +146,7 @@
 <script>
     window.addEventListener("DOMContentLoaded", () => {
         {% if unlocked_number > 0 and unlocked_number < 48 %}
-        {% if location.visit_count == 1 %}
+        {% if location.visit_count_with_photo == 1 %}
         let unlocked_lyric = document.getElementById("lyric{{ unlocked_number }}").innerHTML;
         document.getElementById("unlocked-lyric").style.display = "block";
         document.getElementById("unlocked-lyric").innerHTML = '<div class="card-body"><h6 class="fw-bold mt-3">新たな歌詞が解放されました！</h6><p class="fw-normal">♪ ' + unlocked_lyric + '</p></div>';

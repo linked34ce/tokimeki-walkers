@@ -240,15 +240,16 @@ def detail(location_id, unlocked_number=0):
             conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
+
         sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and userid = '{}' order by time desc;".format(location_id, userid)
         cur.execute(sql1)
         visits = cur.fetchall()
-        sql2 = "select * from Locations where id = {}".format(location_id)
-        cur.execute(sql2)
+        sql3 = "select * from Locations where id = {}".format(location_id)
+        cur.execute(sql3)
         location = cur.fetchone()
 
-        sql3 = "select * from Locations where id != {};".format(location_id)
-        cur.execute(sql3)
+        sql4 = "select * from Locations where id != {};".format(location_id)
+        cur.execute(sql4)
         locations = cur.fetchall()
         cur.close()
         conn.close()
@@ -259,6 +260,11 @@ def detail(location_id, unlocked_number=0):
             utc_time = datetime.strptime(visits[0]["time"], "%Y-%m-%d %H:%M:%S")
             jst_time = utc_time + timedelta(hours=9)
             location["last_visit"] = jst_time
+
+        location["visit_count_with_photo"] = 0
+        for visit in visits:
+            if visit["photo"] != NO_IMAGE:
+                location["visit_count_with_photo"] += 1
 
         if location["visit_count"] < 1:
             message = "⚠️ この聖地は未訪問です"
@@ -414,23 +420,24 @@ def upload(location_id):
             sql1 = "insert into Visits (userid, location_id, photo) values ('{}', {}, '{}');".format(userid, location_id, filename)
             cur.execute(sql1)
 
-            sql2 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and userid = '{}' order by time desc;".format(location_id, userid)
+            sql2 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and userid = '{}' and photo != '{}' order by time desc;".format(location_id, userid, NO_IMAGE)
             cur.execute(sql2)
-            visits = cur.fetchall()
+            visits_with_photo = cur.fetchall()
 
             sql3 = "select * from lyrics where userid = '{}';".format(userid)
             cur.execute(sql3)
             lyrics = cur.fetchone()
             unlocked_number = 0
 
-            if len(visits) < 2:
+            if len(visits_with_photo) < 2:
                 numbers = []
                 for i in range(1, NUM_OF_LYRICS + 1):
                     if not lyrics[i]:
                         numbers.append(i)
-                unlocked_number = numbers[randint(0, len(numbers) - 1)]
-                sql4 = "update Lyrics set lyric{} = 1 where userid = '{}';".format(unlocked_number, userid)
-                cur.execute(sql4)
+                if len(numbers) > 0:
+                    unlocked_number = numbers[randint(0, len(numbers) - 1)]
+                    sql4 = "update Lyrics set lyric{} = 1 where userid = '{}';".format(unlocked_number, userid)
+                    cur.execute(sql4)
 
             conn.commit()
             cur.close()
