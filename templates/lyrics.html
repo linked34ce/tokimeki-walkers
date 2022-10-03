@@ -11,7 +11,7 @@
     <div class="card border border-2 border-dark my-3" style="background-color: lightcyan;">
         <div class="card-header">
             <h4 class="fst-italic">Colorful Dreams! Colorful Smiles!</h4>
-            <p id="rate">歌詞集め率: 0.00%</p>
+            <p id="rate-cdcs">歌詞集め率: 0.00%</p>
         </div>
         <div id="cdcs" class="card-body">
             <div>
@@ -47,7 +47,7 @@
     <div id="nsnm" class="card border border-2 border-primary my-3">
         <div class="card-header">
             <h4 class="fst-italic">NEO SKY, NEO MAP!</h4>
-            <p id="lyric">歌詞集め率: 0.00%</p>
+            <p id="rate-nsnm">歌詞集め率: 0.00%</p>
         </div>
         <div class="card-body">
             <div>
@@ -78,34 +78,40 @@
 </div>
 
 <script>
-    /*
-    const num_of_lyrics = 31;
-    let count = 0;
-    {% for number, lyric in data %}
-    var lyricCollected = {{ lyric }}
-    var lyric = document.getElementById("lyric" + {{ number }});
-    if (!lyricCollected && lyric) {
-        lyric.innerHTML = "○△※&%○△※&%";
-    } else if (lyricCollected && lyric) {
-        count++;
-    }
-    {% endfor %}
-    */
-
     let number = 0;
-    let count = 0;
+    let NUMS_OF_LYRIC_LINES = {
+        "cdcs": 26,
+        "nsnm": 21
+    };
+    let numsOfUnlockedLyrics = {
+        "cdcs": 0,
+        "nsnm": 0
+    };
+    let lyricHuntRates = {
+        "cdcs": 0,
+        "nsnm": 0
+    };
     {% for lyric in lyrics %}
-    number++;
+    console.log(number, {{ lyric }})
     if ({{ lyric }}) {
-        count++;
+        if (number < NUMS_OF_LYRIC_LINES["cdcs"]) {
+            numsOfUnlockedLyrics["cdcs"]++;
+        } else {
+            numsOfUnlockedLyrics["nsnm"]++;
+        }
     } else {
-        document.getElementById("lyric" + number).style.color = "black";
-        document.getElementById("lyric" + number).style.textShadow = "none";
-        document.getElementById("lyric" + number).style.filter = "blur(4px) drop-shadow(0px 0px 300px black)";
+        var locked_lyric = document.getElementById("lyric" + (number + 1));
+        locked_lyric.style.color = "dimgray";
+        locked_lyric.style.textShadow = "none";
+        locked_lyric.style.filter = "blur(3px)";
     }
+    number++;
     {% endfor %}
-    let lyricHuntRate = count / number;
-    document.getElementById("rate").innerHTML = "歌詞集め率: " + Math.round(lyricHuntRate * 10000) / 100 + "%";
+    lyricHuntRates["cdcs"] = numsOfUnlockedLyrics["cdcs"] / NUMS_OF_LYRIC_LINES["cdcs"];
+    lyricHuntRates["nsnm"] = numsOfUnlockedLyrics["nsnm"] / NUMS_OF_LYRIC_LINES["nsnm"];
+    document.getElementById("rate-cdcs").innerHTML = "歌詞集め率: " + Math.round(lyricHuntRates["cdcs"] * 10000) / 100 + "%";
+    document.getElementById("rate-nsnm").innerHTML = "歌詞集め率: " + Math.round(lyricHuntRates["nsnm"] * 10000) / 100 + "%";
+    document.getElementById("cdcs").style.backgroundImage = "linear-gradient(rgba(0, 0, 0, " + (Math.round((0.95 - lyricHuntRate) * 100) / 100) + "), rgba(0, 0, 0, " + (Math.round((0.95 - lyricHuntRate) * 100) / 100) + ")), url('https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//src/cdcs.jpg')";
 </script>
 
 {% endblock %}

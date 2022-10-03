@@ -29,15 +29,14 @@
 </div>
 
 <script>
-    let number = 0;
-    let count = 0;
+    let NUM_OF_LYRIC_LINES = 47;
+    let numOfUnlockedLyric = 0;
     {% for lyric in lyrics %}
-    number++;
     if ({{ lyric }}) {
-        count++;
+        numOfUnlockedLyric++;
     }
     {% endfor %}
-    let lyricHuntRate = count / number;
+    let lyricHuntRate = numOfUnlockedLyric / NUM_OF_LYRIC_LINES;
     document.getElementById("rate").innerHTML = "歌詞集め率平均: " + Math.round(lyricHuntRate * 10000) / 100 + "%";
 </script>
 
