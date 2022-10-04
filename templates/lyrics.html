@@ -8,12 +8,16 @@
 
 <div class="my-3">
     <p>各スポットで写真を撮影して，歌詞カードを完成させよう!!</p>
-    <div class="card border border-2 border-dark my-3" style="background-color: lightcyan;">
+    <div class="card border border-2 border-dark my-3" style="background-color: lightyellow;">
         <div class="card-header">
             <h4 class="fst-italic">Colorful Dreams! Colorful Smiles!</h4>
+            <p class="fw-light">
+                作詞: Ayaka Miyale<br>
+                作曲: 要田健, Carlos K.
+            </p>
             <p id="rate-cdcs">歌詞集め率: 0.00%</p>
         </div>
-        <div id="cdcs" class="card-body">
+        <div id="cdcs" class="card-body lyrics-background">
             <div>
                 <p id="lyric1">夢を奏でよう Rainbow World!</p>
                 <p id="lyric2">(Colorful World! Colorful!</p>
@@ -44,13 +48,18 @@
             </div>
         </div>
     </div>
-    <div id="nsnm" class="card border border-2 border-primary my-3">
+    <div class="card border border-2 border-dark my-3" style="background-color: lightyellow;">
         <div class="card-header">
             <h4 class="fst-italic">NEO SKY, NEO MAP!</h4>
+            <p class="fw-light">
+                作詞: 畑亜貴<br>
+                作曲: 小高光太郎, UiNA
+            </p>
             <p id="rate-nsnm">歌詞集め率: 0.00%</p>
         </div>
-        <div class="card-body">
+        <div id="nsnm" class="card-body lyrics-background">
             <div>
+                <br>
                 <p id="lyric27">ゆっくりと走るこの道</p>
                 <p id="lyric28">何かが生まれかけてるんだ</p>
                 <p id="lyric29">それを伝えたいよ</p>
@@ -68,10 +77,11 @@
                 <p id="lyric41">面白そうな未来が待ってると</p>
                 <p id="lyric42">笑いあえる君がいれば嬉しい</p>
                 <p id="lyric43">今日もありがとう</p>
-                <p id="lyric44">さあこれからは それぞれの地図マップ</p>
+                <p id="lyric44">さあこれからは それぞれの<ruby><rb>地図</rb><rp> (</rp><rt>マップ</rt><rp>)</rp></ruby></p>
                 <p id="lyric45">広げたら気軽に飛び出そう</p>
                 <p id="lyric46">夢見て憧れて また夢が見たいんだ</p>
                 <p id="lyric47">見たい、見たいんだ！</p>
+                <br>
             </div>
         </div>
     </div>
@@ -87,12 +97,8 @@
         "cdcs": 0,
         "nsnm": 0
     };
-    let lyricHuntRates = {
-        "cdcs": 0,
-        "nsnm": 0
-    };
+
     {% for lyric in lyrics %}
-    console.log(number, {{ lyric }})
     if ({{ lyric }}) {
         if (number < NUMS_OF_LYRIC_LINES["cdcs"]) {
             numsOfUnlockedLyrics["cdcs"]++;
@@ -107,11 +113,21 @@
     }
     number++;
     {% endfor %}
-    lyricHuntRates["cdcs"] = numsOfUnlockedLyrics["cdcs"] / NUMS_OF_LYRIC_LINES["cdcs"];
-    lyricHuntRates["nsnm"] = numsOfUnlockedLyrics["nsnm"] / NUMS_OF_LYRIC_LINES["nsnm"];
-    document.getElementById("rate-cdcs").innerHTML = "歌詞集め率: " + Math.round(lyricHuntRates["cdcs"] * 10000) / 100 + "%";
-    document.getElementById("rate-nsnm").innerHTML = "歌詞集め率: " + Math.round(lyricHuntRates["nsnm"] * 10000) / 100 + "%";
-    document.getElementById("cdcs").style.backgroundImage = "linear-gradient(rgba(0, 0, 0, " + (Math.round((0.95 - lyricHuntRates["cdcs"]) * 100) / 100) + "), rgba(0, 0, 0, " + (Math.round((0.95 - lyricHuntRates["cdcs"]) * 100) / 100) + ")), url('https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//images/cdcs.jpg')";
+
+    unlockLyrics("cdcs");
+    unlockLyrics("nsnm");
+
+
+    function unlockLyrics(title) {
+        let lyricHuntRates = {
+            "cdcs": 0,
+            "nsnm": 0
+        };
+        let BRIGHTNESS = 0.99;
+        lyricHuntRates[title] = numsOfUnlockedLyrics[title] / NUMS_OF_LYRIC_LINES[title];
+        document.getElementById("rate-" + title).innerHTML = "歌詞集め率: " + Math.round(lyricHuntRates[title] * 10000) / 100 + "%";
+        document.getElementById(title).style.backgroundImage = "linear-gradient(rgba(0, 0, 0, " + (Math.round((BRIGHTNESS - lyricHuntRates[title]) * 100) / 100) + "), rgba(0, 0, 0, " + (Math.round((BRIGHTNESS - lyricHuntRates[title]) * 100) / 100) + ")), url('https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//images/" + title + ".jpg')";
+    }
 </script>
 
 {% endblock %}
