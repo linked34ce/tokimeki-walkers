@@ -4,40 +4,59 @@
 
 <h1 class="mb-3">TOKIMEKI Walkers</h1>
 <h3>ようこそ、{{ username }}さん</h3>
-<a href="{{ url_for('config') }}" role="button" class="btn btn-outline-dark my-4">登録情報変更</a>
-<a href="{{ url_for('logout') }}" role="button" class="btn btn-outline-danger my-4">ログアウト</a>
-
-<div class="my-3">
-    <div>
-        <h4>概要</h4>
-        <p>『TOKIMEKI Walkers』は、『ラブライブ！虹ヶ咲学園スクールアイドル同好会』の聖地巡礼を支援するARフォトラリーシステムです。</p>
-    </div>
-    <br>
-    <div>
-        <h4>活動記録</h4>
-        <p>訪問済み聖地数: {{ num_of_visited_locs }} / {{ num_of_locations }}</p>
-        <p>撮影済み聖地数: {{ num_of_photos }} / {{ num_of_locations }}</p>
-        <p id="rate">歌詞集め率平均: 0.00%</p>
-    </div>
+<div>
+    <a href="{{ url_for('config') }}" role="button" class="btn btn-outline-dark my-4">登録情報変更</a>
+    <a href="{{ url_for('logout') }}" role="button" class="btn btn-outline-danger my-4">ログアウト</a>
 </div>
 
-<div class="my-4">
-    <a href="{{ url_for('rally') }}" role="button" class="btn btn-primary my-1">フォトラリー</a>
-    <a href="{{ url_for('map', location_id=0) }}" role="button" class="btn btn-primary my-1">マップ</a><br>
-    <a href="{{ url_for('lyrics') }}" role="button" class="btn btn-primary my-1">歌詞集め</a>
-    <a href="{{ url_for('posts', page=1) }}" role="button" class="btn btn-primary my-1">みんなの投稿</a>
+<div class="mb-4">
+    <a href="{{ url_for('rally') }}" role="button" class="btn btn-lg btn-primary my-1 me-1">フォトラリー</a>
+    <a href="{{ url_for('map', location_id=0) }}" role="button" class="btn btn-lg btn-primary my-1">&nbsp;&nbsp;マップ&nbsp;&nbsp;</a><br>
+    <a href="{{ url_for('lyrics') }}" role="button" class="btn btn-lg btn-primary my-1 me-1">歌詞集め</a>
+    <a href="{{ url_for('posts', page=1) }}" role="button" class="btn btn-lg btn-primary my-1">みんなの投稿</a>
+</div>
+
+<div class="my-3">
+    <div class="card my-3 border border-2 border-primary">
+        <div class="card-body">
+            <h4>概要</h4>
+            <p>『TOKIMEKI Walkers』は、『ラブライブ！虹ヶ咲学園スクールアイドル同好会』の聖地巡礼を支援するARフォトラリーシステムです。</p>
+        </div>
+    </div>
+
+    <div class="card my-3 border border-2 border-success">
+        <div class="card-body">
+            <h4>活動記録</h4>
+            <p id="visited">- 訪問済み聖地数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ num_of_visited_locs }} / {{ num_of_locations }}</p>
+            <p id="photos">- 撮影済み聖地数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ num_of_photos }} / {{ num_of_locations }}</p>
+            <p id="rate">- 歌詞集め率平均<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.00%</p>
+        </div>
+    </div>
 </div>
 
 <script>
+    {% if num_of_visited_locs == num_of_locations %}
+    document.getElementById("visited").innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='bg-dark text-light fw-bold'>✨Completed!!✨</span>";
+    {% endif %}
+
+    {% if num_of_photos == num_of_locations %}
+    document.getElementById("photos").innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='bg-dark text-light fw-bold'>✨Completed!!✨</span>";
+    {% endif %}
+
     let NUM_OF_LYRIC_LINES = 47;
     let numOfUnlockedLyric = 0;
+
     {% for lyric in lyrics %}
     if ({{ lyric }}) {
         numOfUnlockedLyric++;
     }
     {% endfor %}
+
     let lyricHuntRate = numOfUnlockedLyric / NUM_OF_LYRIC_LINES;
-    document.getElementById("rate").innerHTML = "歌詞集め率平均: " + Math.round(lyricHuntRate * 10000) / 100 + "%";
+    document.getElementById("rate").innerHTML = "- 歌詞集め率平均<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + Math.round(lyricHuntRate * 10000) / 100 + "%";
+    if (lyricHuntRate === 1) {
+        document.getElementById("rate").innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='bg-dark text-light fw-bold'>✨Completed!!✨</span>";
+    }
 </script>
 
 {% endblock %}

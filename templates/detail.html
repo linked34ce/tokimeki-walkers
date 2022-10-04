@@ -6,10 +6,10 @@
 <p class="my-3">{{ message }}</p>
 <div id="unlocked-lyric" class="card my-3 border border-2 border-info" style="display: none;"></div>
 
-<div class="float-start">
+<div>
     <a href="{{ url_for('rally') }}" role="button" class="btn btn-secondary">もどる</a>
     <a href="/map/{{ location.id }}" role="button" class="btn btn-outline-primary">マップを表示</a>
-<div>
+</div>
 <p id="distance" class="mt-4 mb-0">
     現在地からの距離: ---m<br>
     <span class="fw-bold">* チェックインが可能か判別しています</span>
@@ -60,7 +60,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 
