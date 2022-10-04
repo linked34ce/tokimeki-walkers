@@ -111,7 +111,7 @@
     lyricHuntRates["nsnm"] = numsOfUnlockedLyrics["nsnm"] / NUMS_OF_LYRIC_LINES["nsnm"];
     document.getElementById("rate-cdcs").innerHTML = "歌詞集め率: " + Math.round(lyricHuntRates["cdcs"] * 10000) / 100 + "%";
     document.getElementById("rate-nsnm").innerHTML = "歌詞集め率: " + Math.round(lyricHuntRates["nsnm"] * 10000) / 100 + "%";
-    document.getElementById("cdcs").style.backgroundImage = "linear-gradient(rgba(0, 0, 0, " + (Math.round((0.95 - lyricHuntRate) * 100) / 100) + "), rgba(0, 0, 0, " + (Math.round((0.95 - lyricHuntRate) * 100) / 100) + ")), url('https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//src/cdcs.jpg')";
+    document.getElementById("cdcs").style.backgroundImage = "linear-gradient(rgba(0, 0, 0, " + (Math.round((0.95 - lyricHuntRates["cdcs"]) * 100) / 100) + "), rgba(0, 0, 0, " + (Math.round((0.95 - lyricHuntRates["cdcs"]) * 100) / 100) + ")), url('https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//images/cdcs.jpg')";
 </script>
 
 {% endblock %}
