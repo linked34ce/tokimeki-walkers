@@ -11,8 +11,8 @@
 
 <div class="mb-4">
     <a href="{{ url_for('rally') }}" role="button" class="btn btn-lg btn-primary my-1 me-1">フォトラリー</a>
-    <a href="{{ url_for('map', location_id=0) }}" role="button" class="btn btn-lg btn-primary my-1">&nbsp;&nbsp;マップ&nbsp;&nbsp;</a><br>
-    <a href="{{ url_for('lyrics') }}" role="button" class="btn btn-lg btn-primary my-1 me-1">歌詞集め</a>
+    <a href="{{ url_for('map', location_id=0) }}" role="button" class="btn btn-lg btn-primary my-1">マップ</a><br>
+    <a href="{{ url_for('lyrics') }}" role="button" class="btn btn-lg btn-primary my-1 me-1">歌詞あつめ</a>
     <a href="{{ url_for('posts', page=1) }}" role="button" class="btn btn-lg btn-primary my-1">みんなの投稿</a>
 </div>
 
@@ -27,20 +27,20 @@
     <div class="card my-3 border border-2 border-success">
         <div class="card-body">
             <h4>活動記録</h4>
-            <p id="visited">- 訪問済み聖地数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ num_of_visited_locs }} / {{ num_of_locations }}</p>
-            <p id="photos">- 撮影済み聖地数<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ num_of_photos }} / {{ num_of_locations }}</p>
-            <p id="rate">- 歌詞集め率平均<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;0.00%</p>
+            <p id="visited">訪問済み聖地数: {{ num_of_visited_locs }} / {{ num_of_locations }}</p>
+            <p id="photos">撮影済み聖地数: {{ num_of_photos }} / {{ num_of_locations }}</p>
+            <p id="rate">歌詞あつめ率平均: 0.00%</p>
         </div>
     </div>
 </div>
 
 <script>
     {% if num_of_visited_locs == num_of_locations %}
-    document.getElementById("visited").innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='bg-dark text-light fw-bold'>✨Completed!!✨</span>";
+    document.getElementById("visited").innerHTML += "<br><span class='bg-dark text-light fw-bold'>✨Completed!!✨</span>";
     {% endif %}
 
     {% if num_of_photos == num_of_locations %}
-    document.getElementById("photos").innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='bg-dark text-light fw-bold'>✨Completed!!✨</span>";
+    document.getElementById("photos").innerHTML += "<br><span class='bg-dark text-light fw-bold'>✨Completed!!✨</span>";
     {% endif %}
 
     let NUM_OF_LYRIC_LINES = 47;
@@ -53,9 +53,9 @@
     {% endfor %}
 
     let lyricHuntRate = numOfUnlockedLyric / NUM_OF_LYRIC_LINES;
-    document.getElementById("rate").innerHTML = "- 歌詞集め率平均<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + Math.round(lyricHuntRate * 10000) / 100 + "%";
+    document.getElementById("rate").innerHTML = "歌詞あつめ率平均: " + Math.round(lyricHuntRate * 10000) / 100 + "%";
     if (lyricHuntRate === 1) {
-        document.getElementById("rate").innerHTML += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='bg-dark text-light fw-bold'>✨Completed!!✨</span>";
+        document.getElementById("rate").innerHTML += "<br><span class='bg-dark text-light fw-bold'>✨Completed!!✨</span>";
     }
 </script>
 
