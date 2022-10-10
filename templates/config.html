@@ -5,7 +5,7 @@
     <div class="position-absolute top-50 start-50 translate-middle w-75 h-100 my-5">
         <div class="card border-dark bg-light border-2 rounded-3">
             <div class="card-body mx-4 mt-3 mb-2">
-                <h2 class="card-title text-center mb-3">登録情報変更</h2>
+                <h2 class="card-title text-center mb-3">登録情報の確認 / 変更</h2>
                 <p id="result">{{ result | default("<br>") | safe }}</p>
                 <form method="POST">
                     <div class="mb-4">
@@ -35,6 +35,8 @@
             <a href="{{ url_for('main') }}" class="btn btn-secondary mt-4">もどる</a>
         </div>
     </div>
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 <script src="{{ url_for ('static', filename='js/config.js') }}"></script>
 
