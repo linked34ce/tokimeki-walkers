@@ -9,11 +9,14 @@
     <a href="{{ url_for('logout') }}" role="button" class="btn btn-outline-danger my-4">ログアウト</a>
 </div>
 
-<div class="mb-4">
-    <a href="{{ url_for('rally') }}" role="button" class="btn btn-lg btn-primary my-1 me-1">フォトラリー</a>
-    <a href="{{ url_for('map', location_id=0) }}" role="button" class="btn btn-lg btn-primary my-1">マップ</a><br>
-    <a href="{{ url_for('lyrics') }}" role="button" class="btn btn-lg btn-primary my-1 me-1">歌詞あつめ</a>
-    <a href="{{ url_for('posts', page=1) }}" role="button" class="btn btn-lg btn-primary my-1">みんなの投稿</a>
+<div class="my-1 row row-cols-auto mx-auto gap-1">
+    <a href="{{ url_for('rally') }}" role="button" class="btn btn-primary col">フォトラリー</a>
+    <a href="{{ url_for('map', location_id=0) }}" role="button" class="btn btn-primary col">マップ</a>
+</div>
+
+<div class="mb-4 row row-cols-auto mx-auto gap-1">
+    <a href="{{ url_for('lyrics') }}" role="button" class="btn btn-primary col">歌詞あつめ</a>
+    <a href="{{ url_for('posts', page=1) }}" role="button" class="btn btn-primary col">みんなの投稿</a>
 </div>
 
 <div class="my-3">
