@@ -10,3 +10,4 @@ static/uploads
 nohup.out
 temp.py
 *.DS_Store
+test*.db
