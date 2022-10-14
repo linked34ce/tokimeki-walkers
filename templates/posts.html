@@ -3,7 +3,24 @@
 {% block content %}
 
 <h1 class="mb-3">みんなの投稿</h1>
-<a href="{{ url_for('main') }}" role="button" class="btn btn-secondary mb-2">もどる</a>
+<a href="{{ url_for('main') }}" role="button" class="btn btn-secondary mb-4">もどる</a><br>
+
+{# <div class="d-flex justify-content-between"> #}
+{% if page == 1 and num_of_pages > 1 %}
+<div class="d-flex justify-content-end">
+    <a href="./{{ page + 1 }}" role="button" class="btn btn-primary">次のページへ</a>
+</div>
+{% elif page > 1 and page < num_of_pages %}
+<div class="d-flex justify-content-between">
+    <a href="./{{ page - 1 }}" role="button" class="btn btn-primary">前のページへ</a>
+    <a href="./{{ page + 1 }}" role="button" class="btn btn-primary">次のページへ</a>
+</div>
+{% elif page > 1 and page == num_of_pages %}
+<div class="d-flex justify-content-start">
+    <a href="./{{ page - 1 }}" role="button" class="btn btn-primary">前のページへ</a>
+</div>
+{% endif %}
+{# </div> #}
 
 <div class="my-3">
     {% for post in posts %}
@@ -56,14 +73,30 @@
     {% endfor %}
 </div>
 
-{% if page > 1 %}
-<a href="./{{ page - 1 }}" role="button" class="btn btn-primary">前のページへ</a>
-{% endif %}
-{% if page < num_of_pages %}
-<a href="./{{ page + 1 }}" role="button" class="btn btn-primary">次のページへ</a>
+{% if page == 1 and num_of_pages > 1 %}
+<div class="d-flex justify-content-end">
+    <a href="./{{ page + 1 }}" role="button" class="btn btn-primary">次のページへ</a>
+</div>
+<br>
+{% elif page > 1 and page < num_of_pages %}
+<div class="d-flex justify-content-between">
+    <a href="./{{ page - 1 }}" role="button" class="btn btn-primary">前のページへ</a>
+    <a href="./{{ page + 1 }}" role="button" class="btn btn-primary">次のページへ</a>
+</div>
+<br>
+{% elif page > 1 and page == num_of_pages %}
+<div class="d-flex justify-content-start">
+    <a href="./{{ page - 1 }}" role="button" class="btn btn-primary">前のページへ</a>
+</div>
+<br>
 {% endif %}
 
+{% if not posts %}
+<p>⚠️ まだ投稿がありません</p>
+{% else %}
 <br>
-<a href="{{ url_for('main') }}" role="button" class="btn btn-secondary my-3">もどる</a>
+<a href="#" role="button" class="btn btn-outline-primary mt-3">ページの先頭へ</a><br>
+<a href="{{ url_for('main') }}" role="button" class="btn btn-secondary mt-3">もどる</a>
+{% endif %}
 
 {% endblock %}

@@ -73,9 +73,9 @@ sqls = [
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (49, 'dummy4', 35.61667054874251, 139.77743614710175, '', '', 'season2_episode13_scene01.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (50, 'ゆりかもめ 東京ビックサイト駅 ホーム', 35.630282750677054, 139.791430529139, '', '', 'other01.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (51, 'レインボープロムナード 台場口 南北ルート分岐点', 35.635861870812505, 139.77502515910098, '', '', 'other02.jpg');",
-    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (52, 'お台場海浜公園 自由の女神像', 35.6277257618083, 139.77189461779116, '', '', 'other03.jpg');",
-    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (53, '豊洲ぐるり公園', 35.641092292836454, 139.77756911175618, '', '', 'other04.jpg');",
-    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (54, 'お台場海浜公園 展望デッキ', 35.627699882191145, 139.7715381026066, '', '', 'other05.jpg');",
+    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (52, '豊洲ぐるり公園', 35.641092292836454, 139.77756911175618, '', '', 'other03.jpg');",
+    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (53, 'お台場海浜公園 展望デッキ', 35.627699882191145, 139.7715381026066, '', '', 'other04.jpg');",
+    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (54, 'お台場海浜公園 自由の女神像', 35.6277257618083, 139.77189461779116, '', '', 'other05.jpg');"
 ]
 
 for sql in sqls:

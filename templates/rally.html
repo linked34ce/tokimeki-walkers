@@ -8,9 +8,10 @@
 
 <div class="my-3">
     {% for location in locations %}
-    <div class="card my-3 border border-2 border-primary">
-        <div class="card-header">
-            <h4 class="mt-2">{{ location.id }}.  {{ location.name }}</h4>
+    <div id="location{{ location.id }}" class="card my-3 border border-2 border-primary">
+        <div class="card-header row mx-0 p-0 align-items-center h4">
+            <div class="col-2 text-center text-nowrap">{{ location.id }}</div>
+            <div class="col py-3" style="border-left: 1px solid lightgray;">{{ location.name }}</div>
         </div>
         <div class="card-body">
             <div class="float-start">
@@ -58,6 +59,7 @@
     {% endfor %}
 </div>
 
-<a href="{{ url_for('main') }}" role="button" class="btn btn-secondary mt-2">もどる</a>
+<a href="#" role="button" class="btn btn-outline-primary mt-2">ページの先頭へ</a><br>
+<a href="{{ url_for('main') }}" role="button" class="btn btn-secondary mt-3">もどる</a>
 
 {% endblock %}
