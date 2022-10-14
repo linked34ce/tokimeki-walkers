@@ -3,8 +3,25 @@
 {% block content %}
 
 <h1 class="mb-3">フォトラリー</h1>
-<h3 class="my-4">{{ username }}さんの訪問記録</h3>
-<a href="{{ url_for('main') }}" role="button" class="btn btn-secondary mb-2">もどる</a>
+<h3 class="my-4">{{ username }}さんの巡礼記録</h3>
+<a href="{{ url_for('main') }}" role="button" class="btn btn-secondary mb-4">もどる</a>
+
+<div class="my-1 row row-cols-auto mx-auto gap-1">
+    <button id="season1-opening" class="btn btn-outline-dark col-4">1期OP</button>
+    <button id="season2-opening" class="btn btn-outline-dark col-4">2期OP</button>
+</div>
+
+<div class="my-1 row row-cols-auto mx-auto gap-1">
+    <button id="season1-episodes" class="btn btn-outline-dark col-4">1期各話</button>
+    <button id="season2-episodes" class="btn btn-outline-dark col-4">2期各話</button>
+</div>
+
+<div class="mb-4 row row-cols-auto mx-auto gap-1">
+    <button id="others" class="btn btn-outline-dark col-4">その他</button>
+    <button id="all" class="btn btn-outline-primary col-4">すべて</button>
+</div>
+
+<h4 id="numbers" class="mb-4">No. 1 - No. 54</h4>
 
 <div class="my-3">
     {% for location in locations %}
@@ -61,5 +78,7 @@
 
 <a href="#" role="button" class="btn btn-outline-primary mt-2">ページの先頭へ</a><br>
 <a href="{{ url_for('main') }}" role="button" class="btn btn-secondary mt-3">もどる</a>
+
+<script src="{{ url_for ('static', filename='js/rally.js') }}"></script>
 
 {% endblock %}
