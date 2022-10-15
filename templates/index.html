@@ -56,7 +56,7 @@
     {% endfor %}
 
     let lyricHuntRate = numOfUnlockedLyric / NUM_OF_LYRIC_LINES;
-    document.getElementById("rate").innerHTML = "歌詞あつめ率平均: " + Math.round(lyricHuntRate * 10000) / 100 + "%";
+    document.getElementById("rate").innerHTML = "総合歌詞あつめ率: " + Math.round(lyricHuntRate * 10000) / 100 + "%";
     if (lyricHuntRate === 1) {
         document.getElementById("rate").innerHTML += "<br><span class='bg-dark text-light fw-bold'>✨Completed!!✨</span>";
     }
