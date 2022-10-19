@@ -2,6 +2,23 @@
 
 {% block content %}
 
+{% if location.id == 1 %}
+<div class="d-flex justify-content-end">
+    <a href="../{{ location.id + 1 }}/0" role="button" class="btn btn-primary">No. {{ location.id + 1}} →</a>
+</div>
+{% elif location.id == 54 %}
+<div class="d-flex justify-content-start">
+    <a href="../{{ location.id - 1 }}/0" role="button" class="btn btn-primary">← No. {{ location.id - 1}}</a>
+</div>
+{% else %}
+<div class="d-flex justify-content-between">
+<a href="../{{ location.id - 1 }}/0" role="button" class="btn btn-primary">← No. {{ location.id - 1}}</a>
+    <a href="../{{ location.id + 1 }}/0" role="button" class="btn btn-primary">No. {{ location.id + 1}} →</a>
+</div>
+{% endif %}
+
+<br>
+
 <div class="h1">
     No. {{ location.id }}<br>{{ location.name }}
 </div>
@@ -69,14 +86,14 @@
     <div class="card my-3 border border-2 border-primary">
         <div class="card-body">
             <h4>概要</h4>
-            <p>{{ location.summary }}</p>
+            <p>{{ location.summary | safe }}</p>
         </div>
     </div>
     <div class="card my-3 border border-2 border-warning">
         <div class="card-body">
             <h4>登場シーン</h4>
             <img src="https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//images/{{ location.image }}" width="100%" class="border border-1 border-dark mt-2 mb-3">
-            <p>{{ location.scene }}</p>
+            <p>{{ location.scene | safe }}</p>
         </div>
     </div>
     <div class="card my-3 border border-2 border-success">
@@ -92,6 +109,22 @@
 </div>
 
 <a href="{{ url_for('rally') }}" role="button" class="btn btn-secondary mt-2 mb-4">もどる</a>
+<br>
+
+{% if location.id == 1 %}
+<div class="d-flex justify-content-end mt-3">
+    <a href="../{{ location.id + 1 }}/0" role="button" class="btn btn-primary">No. {{ location.id + 1}} →</a>
+</div>
+{% elif location.id == 54 %}
+<div class="d-flex justify-content-start mt-3">
+    <a href="../{{ location.id - 1 }}/0" role="button" class="btn btn-primary">← No. {{ location.id - 1}}</a>
+</div>
+{% else %}
+<div class="d-flex justify-content-between mt-3">
+<a href="../{{ location.id - 1 }}/0" role="button" class="btn btn-primary">← No. {{ location.id - 1}}</a>
+    <a href="../{{ location.id + 1 }}/0" role="button" class="btn btn-primary">No. {{ location.id + 1}} →</a>
+</div>
+{% endif %}
 
 <div id="hidden-lyrics">
     <p id="lyric1">夢を奏でよう Rainbow World!</p>

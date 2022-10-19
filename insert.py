@@ -22,7 +22,7 @@ cur = conn.cursor()
 # ]
 
 sqls = [
-    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (1, '有明西ふ頭公園 霧の噴水広場', 35.627207058157886, 139.79434564243581, '', '', 'season1_opening_scene01.jpg');",
+    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (1, '有明西ふ頭公園 霧の噴水広場', 35.627207058157886, 139.79434564243581, '　有明西ふ頭公園は、東京ビッグサイトや有明客船ターミナルに隣接する細長い海上公園です。海岸部では、年間を通して釣りを楽しむことができます。<br>　公園の中心に位置する霧の噴水広場は石柱のようなオブジェが特徴的ですが、ここ数年は誰も霧が出たのを見たことがないようです。', '　1期OPの歌い出しで、かすみとしずくが登場する場所です。下から飛び出してきて、手を繋ぎながらポーズを取る2人の姿が印象的です。<br><br><span class=\"fst-italic\">　\"青空 雨あがり 希望の風吹いて\"</span>', 'season1_opening_scene01.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (2, 'TFTビル東館 2階', 35.630495664875234, 139.79107817472897, '', '', 'season1_opening_scene02.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (3, 'セブン-イレブン ROYAL東京ビッグサイト店', 35.62957322139265, 139.79340752996296, '', '', 'season1_opening_scene03.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (4, 'ダイバーシティ東京 プラザ 東京テレポート駅ゲート', 35.62604666093716, 139.77628076815193, '', '', 'season1_opening_scene04.jpg');",
@@ -35,7 +35,7 @@ sqls = [
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (11, 'クア・アイナ アクアシティお台場店', 35.62757726701679, 139.77241717910024, '', '', 'season2_opening_scene04.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (12, '豊洲六丁目公園', 35.646717801770045, 139.79251675982312, '', '', 'season2_opening_scene05.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (13, '新豊洲Brilliaランニングスタジアム 入口', 35.64857326462276, 139.78633649040245, '', '', 'season2_opening_scene06.jpg');",
-    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (14, 'グランドニッコー東京 ヴェルエクール', 35.6258696480714, 139.77210079510047, '', '', 'season2_opening_scene07.jpg');",
+    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (14, 'グランドニッコー東京 台場 ヴェルエクール', 35.6258696480714, 139.77210079510047, '', '', 'season2_opening_scene07.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (15, '晴海トリトン 花のテラス', 35.657925984569566, 139.78224916497845, '', '', 'season2_opening_scene08.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (16, '有明ガーデン ウェルカムデッキ', 35.63747191390529, 139.79266771957623, '', '', 'season2_opening_scene09.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (17, 'アクアシティお台場 カフェ ラ・ボエム付近通路', 35.628345593759455, 139.77419416917553, '', '', 'season2_opening_scene10.jpg');",
@@ -67,10 +67,10 @@ sqls = [
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (43, '東京ビッグサイト 会議棟 電光掲示板下階段', 35.63024907173829, 139.7941468589009, '', '', 'season2_episode08_scene01.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (44, 'お台場海浜公園 西側エリア 芝生広場', 35.62724222455328, 139.77076665787138, '', '', 'season2_episode09_scene01.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (45, '東京ビッグサイト 西展示棟 アトリウム', 35.62905944738038, 139.7945661920029, '', '', 'season2_episode10_scene01.jpg');",
-    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (46, 'dummy1', 35.62353003507883, 139.7747587146257, '', '', 'season2_episode11_scene01.jpg');",
-    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (47, 'dummy2', 35.62393289639084, 139.76886222663114, '', '', 'season2_episode12_scene01.jpg');",
-    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (48, 'dummy3', 35.623216493341985, 139.78077720632157, '', '', 'season2_episode12_scene02.jpg');",
-    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (49, 'dummy4', 35.61667054874251, 139.77743614710175, '', '', 'season2_episode13_scene01.jpg');",
+    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (46, '東京観光汽船 お台場海浜公園船着場', 35.62924440870841, 139.77385850043026, '', '', 'season2_episode11_scene01.jpg');",
+    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (47, 'ダイバーシティ東京 オフィスタワー エントランス', 35.62500091895647, 139.776984712412, '', '', 'season2_episode11_scene02.jpg');",
+    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (48, 'お台場海浜公園 おだいばビーチ', 35.6309282376182, 139.7767641071071, '', '', 'season2_episode11_scene01.jpg');",
+    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (49, '青海南ふ頭公園  展望広場 デザインウォール', 35.61501783216955, 139.77640804146432, '', '', 'season2_episode13_scene01.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (50, 'ゆりかもめ 東京ビックサイト駅 ホーム', 35.630282750677054, 139.791430529139, '', '', 'other01.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (51, 'レインボープロムナード 台場口 南北ルート分岐点', 35.635861870812505, 139.77502515910098, '', '', 'other02.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (52, '豊洲ぐるり公園', 35.641092292836454, 139.77756911175618, '', '', 'other03.jpg');",

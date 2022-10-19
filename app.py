@@ -468,8 +468,8 @@ def map(location_id):
         if location_id < 1:
             central_location = {
                 "id": 0,
-                "latitude": 35.62484634835641, 
-                "longitude": 139.78602418344875
+                "latitude": 35.636930005936414, 
+                "longitude": 139.77782556878714
             }
         else:
             sql2 = "select id, latitude, longitude from Locations where id = {};".format(location_id)
