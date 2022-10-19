@@ -1,6 +1,0 @@
-include main.db
-graft static
-graft templates
-exclude *.pem
-exclude *.txt
-exclude *.md
