@@ -16,7 +16,6 @@
     <a href="../{{ location.id + 1 }}/0" role="button" class="btn btn-primary">No. {{ location.id + 1}} →</a>
 </div>
 {% endif %}
-
 <br>
 
 <div class="h1">
@@ -31,13 +30,14 @@
 </div>
 <p id="distance" class="mt-4 mb-0">
     現在地からの距離: ---m<br>
-    <span class="fw-bold">* チェックインが可能か判別しています</span>
-</p><br>
+    <span class="fw-bold">* チェックインが可能か判別しています<br><br></span>
+</p>
+<br>
 
 <div class="mb-3">
     <div>
-        <button id="button-checkin-with-photo" type="button" class="btn btn-primary my-1" data-bs-toggle="modal" data-bs-target="#with-photo">写真ありでチェックイン</button><br>
-        <button id="button-checkin-without-photo" type="button" class="btn btn-dark my-1" data-bs-toggle="modal" data-bs-target="#without-photo">写真なしでチェックイン</button><br>
+        <button id="button-checkin-with-photo" type="button" class="btn btn-primary my-1 disabled" data-bs-toggle="modal" data-bs-target="#with-photo">写真ありでチェックイン</button><br>
+        <button id="button-checkin-without-photo" type="button" class="btn btn-dark my-1 disabled" data-bs-toggle="modal" data-bs-target="#without-photo">写真なしでチェックイン</button><br>
 
         {% if location.photo and location.photo != "no_image.jpg" %}
         <img src="https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//uploads/{{ location.photo }}" width="50%" class="border border-1 border-dark mt-3 mb-2">
@@ -189,7 +189,7 @@
         document.getElementById("hidden-lyrics").remove();
     });
 
-    const THRESHOLD = 100000; // 実際は50m テスト用: 100000m
+    const THRESHOLD = 50; // 実際は50m テスト用: 100000m
     let discriminator = document.getElementById("distance");
 
     let watchId = navigator.geolocation.watchPosition(pos => {
@@ -201,11 +201,11 @@
         if (roundedDistance <= THRESHOLD) {
             buttonCheckinWithPhoto.className = "btn btn-primary my-1";
             buttonCheckinWithoutPhoto.className = "btn btn-dark my-1";
-            discriminator.innerHTML += "<span class='fw-bold'><span class='text-success'>*</span> チェックイン可能です</span>";
+            discriminator.innerHTML += "<span class='fw-bold'><span class='text-success'>*</span> チェックイン可能です<br> &nbsp;&nbsp;&nbsp;(50m以内です)</span>";
         } else {
             buttonCheckinWithPhoto.className = "btn btn-primary my-1 disabled";
             buttonCheckinWithoutPhoto.className = "btn btn-dark my-1 disabled";
-            discriminator.innerHTML += "<span class='fw-bold'><span class='text-danger'>*</span> チェックインできません</span>";
+            discriminator.innerHTML += "<span class='fw-bold'><span class='text-danger'>*</span> チェックインできません<br> &nbsp;&nbsp;&nbsp;(50m以内ではありません)</span>";
         }
     }, err => {
         let err_msg = "位置情報の取得に失敗しました:\n";
@@ -221,7 +221,7 @@
                 break;
         }
         let discriminator = document.getElementById("distance");
-        discriminator.innerHTML = "現在地からの距離: ---m<br><span class='fw-bold'><span class='text-danger'>*</span> チェックインできません</span>";
+        discriminator.innerHTML = "現在地からの距離: ---m<br><span class='fw-bold'><span class='text-danger'>*</span> チェックインできません <br> &nbsp;&nbsp;&nbsp;(位置情報が取得できません)</span>";
         window.alert(err_msg);
     }, {
         enableHighAccuracy: true,
