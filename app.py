@@ -46,25 +46,6 @@ class User():
     name = None
     password = None
 
-        # record = None
-        # userid_pattern = re.compile(r'^[a-zA-Z0-9]+$')
-
-        # if userid_pattern.match(id):
-        #     try:
-        #         dbname = DB_NAME_LOCAL
-        #         conn = sqlite3.connect(dbname)
-        #     except sqlite3.OperationalError:
-        #         dbname = DB_NAME_REMOTE
-        #         conn = sqlite3.connect(dbname)
-        #     conn.row_factory = dict_factory
-        #     cur = conn.cursor()
-        #     sql = "select * from Users where id = '{}';".format(id)
-        #     cur.execute(sql)
-        #     record = cur.fetchone()
-        #     conn.commit()
-        #     cur.close()
-        #     conn.close()
-
     def __init__(self, session_token):
         user = None
         try:
@@ -80,7 +61,6 @@ class User():
         user = cur.fetchone()
         cur.close()
         conn.close()
-        #print(user)
 
         if user:
             self.id = user["id"]
