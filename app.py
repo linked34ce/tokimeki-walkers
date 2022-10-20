@@ -473,7 +473,10 @@ def upload(location_id):
 @login_required
 def map(location_id):
     if request.method == "GET":
-        if not User.id:
+        remember_token = request.cookies.get("remember_token")
+        session_token = remember_token.split("|")[0]
+        user = User(session_token)
+        if not user:
             return redirect(url_for("login"))
         
         try:
@@ -579,11 +582,7 @@ def signup():
                 cur.close()
                 conn.close()
             else:
-                User.id = userid
-
                 result = "<span class='text-success'>*</span> ユーザ登録に成功しました"
-                conn.commit()
-
                 sql2 = "insert into Lyrics (userid) values ('{}');".format(userid)
                 cur.execute(sql2)
                 conn.commit()
@@ -614,7 +613,9 @@ def login():
         temp_user = cur.fetchone()
         cur.close()
         conn.close()
-        user = User(temp_user["session_token"])
+        user = User(None)
+        if temp_user:
+            user = User(temp_user["session_token"])        
 
         result = "<span class='text-danger'>*</span> "
         password_pattern = re.compile(r'^[a-zA-Z0-9]+$')
@@ -685,8 +686,7 @@ def config():
                 conn.commit()
 
                 result = "<span class='text-success'>*</span> 表示名を変更しました"
-                User.name = new_username
-                current_username = new_username
+                user.name = new_username
 
             sql = "select profile from Users where id = '{}';".format(user.id)
             cur.execute(sql)
@@ -705,11 +705,11 @@ def config():
             result = "<span class='text-success'>*</span> プロフィールを変更しました"
             cur.close()
             conn.close()
-        return render_template("config.html", userid=user.id, username=current_username, result=result, profile=profile)
+        return render_template("config.html", userid=user.id, username=user.name, result=result, profile=profile)
     else:
         if not profile:
             profile = ""
-        return render_template("config.html", userid=user.id, username=current_username, profile=profile)
+        return render_template("config.html", userid=user.id, username=user.name, profile=profile)
 
 @app.route("/logout")
 @login_required
@@ -718,6 +718,6 @@ def logout():
     return redirect(url_for("login"))
 
 if __name__ == "__main__":
-    # app.run(host="0.0.0.0", port=80, debug=False, threaded=True)
-    app.run(host="0.0.0.0", port=80, debug=True, threaded=True)
+    app.run(host="0.0.0.0", port=80, debug=False, threaded=True)
+    # app.run(host="0.0.0.0", port=80, debug=True, threaded=True)
     # serve(app, host="0.0.0.0", port=80, threads=5)
