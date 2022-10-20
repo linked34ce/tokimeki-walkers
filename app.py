@@ -42,63 +42,31 @@ class User():
     is_active = True
     is_anonymous = False
     id = None
+    session_token = None
     name = None
     password = None
 
-    def __init__(self, id):
-        record = None
-        userid_pattern = re.compile(r'^[a-zA-Z0-9]+$')
+        # record = None
+        # userid_pattern = re.compile(r'^[a-zA-Z0-9]+$')
 
-        if userid_pattern.match(id):
-            try:
-                dbname = DB_NAME_LOCAL
-                conn = sqlite3.connect(dbname)
-            except sqlite3.OperationalError:
-                dbname = DB_NAME_REMOTE
-                conn = sqlite3.connect(dbname)
-            conn.row_factory = dict_factory
-            cur = conn.cursor()
-            sql = "select * from Users where id = '{}';".format(id)
-            cur.execute(sql)
-            record = cur.fetchone()
-            conn.commit()
-            cur.close()
-            conn.close()
+        # if userid_pattern.match(id):
+        #     try:
+        #         dbname = DB_NAME_LOCAL
+        #         conn = sqlite3.connect(dbname)
+        #     except sqlite3.OperationalError:
+        #         dbname = DB_NAME_REMOTE
+        #         conn = sqlite3.connect(dbname)
+        #     conn.row_factory = dict_factory
+        #     cur = conn.cursor()
+        #     sql = "select * from Users where id = '{}';".format(id)
+        #     cur.execute(sql)
+        #     record = cur.fetchone()
+        #     conn.commit()
+        #     cur.close()
+        #     conn.close()
 
-        if record:
-            self.id = record["id"]
-            self.name = record["name"]
-            self.password = record["password"]
-        else:
-            self.id = None
-
-    def get_id(self):
-        return self.id
-    
-    def get_name(self):
-        return self.name
-        
-def dict_factory(cursor, row):
-   dic = {}
-   for index, column in enumerate(cursor.description):
-       dic[column[0]] = row[index]
-   return dic
-
-@login_manager.user_loader
-def load_user(userid):
-    return User(userid)
-
-@app.route("/", methods=["GET"])
-@login_required
-def main():
-    if request.method == "GET":
-        if User.id:
-            userid = User.id
-            user = User(userid)
-            username = user.get_name()   
-        else:
-            return redirect(url_for("login"))
-        
+    def __init__(self, session_token):
+        user = None
         try:
             dbname = DB_NAME_LOCAL
             conn = sqlite3.connect(dbname)
@@ -107,7 +75,54 @@ def main():
             conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where userid = '{}';".format(userid)
+        sql = "select * from Users where session_token = '{}';".format(str(session_token))
+        cur.execute(sql)
+        user = cur.fetchone()
+        cur.close()
+        conn.close()
+        #print(user)
+
+        if user:
+            self.id = user["id"]
+            self.session_token = user["session_token"]
+            self.name = user["name"]
+            self.password = user["password"]
+
+    def get_id(self):
+        return str(self.session_token)
+
+    def get_name(self):
+        return self.name
+
+def dict_factory(cursor, row):
+   dic = {}
+   for index, column in enumerate(cursor.description):
+       dic[column[0]] = row[index]
+   return dic
+
+@login_manager.user_loader
+def load_user(session_token):
+    user = User(session_token)
+    return user
+
+@app.route("/", methods=["GET"])
+@login_required
+def main():
+    if request.method == "GET":
+        remember_token = request.cookies.get("remember_token")
+        session_token = remember_token.split("|")[0]
+        user = User(session_token)
+        if not user:
+            return redirect(url_for("login"))
+        try:
+            dbname = DB_NAME_LOCAL
+            conn = sqlite3.connect(dbname)
+        except sqlite3.OperationalError:
+            dbname = DB_NAME_REMOTE
+            conn = sqlite3.connect(dbname)
+        conn.row_factory = dict_factory
+        cur = conn.cursor()
+        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where userid = '{}';".format(user.id)
         cur.execute(sql1)
         visits = cur.fetchall()
         sql2 = "select id from Locations;"
@@ -115,7 +130,7 @@ def main():
         locations = cur.fetchall()
         conn.row_factory = None
         cur = conn.cursor()
-        sql3 = "select * from Lyrics where userid = '{}';".format(userid)
+        sql3 = "select * from Lyrics where userid = '{}';".format(user.id)
         cur.execute(sql3)
         lyrics = cur.fetchone()
 
@@ -135,18 +150,17 @@ def main():
 
         lyrics = lyrics[1:NUM_OF_LYRICS + 1]
 
-        return render_template("index.html", username=username, num_of_locations=num_of_locations,
+        return render_template("index.html", username=user.name, num_of_locations=num_of_locations,
                 num_of_visited_locs=num_of_visited_locs, num_of_photos=num_of_photos, lyrics=lyrics)
 
 @app.route("/rally", methods=["GET"])
 @login_required
 def rally():
     if request.method == "GET":
-        if User.id:
-            userid = User.id
-            user = User(userid)
-            username = user.get_name()
-        else:
+        remember_token = request.cookies.get("remember_token")
+        session_token = remember_token.split("|")[0]
+        user = User(session_token)
+        if not user:
             return redirect(url_for("login"))
         
         try:
@@ -162,7 +176,7 @@ def rally():
         locations = cur.fetchall()
 
         for location in locations:
-            sql2 = "select * from Locations left join Visits on Locations.id = Visits.location_id where userid = '{}' and location_id = '{}' order by time desc;".format(userid, location["id"])
+            sql2 = "select * from Locations left join Visits on Locations.id = Visits.location_id where userid = '{}' and location_id = '{}' order by time desc;".format(user.id, location["id"])
             cur.execute(sql2)
             visits = cur.fetchall()
             location["visit_count"] = len(visits)
@@ -181,15 +195,16 @@ def rally():
         cur.close()
         conn.close()
 
-        return render_template("rally.html", username=username, locations=locations)
+        return render_template("rally.html", username=user.name, locations=locations)
 
 @app.route("/post/<int:location_id>", methods=["POST"])
 @login_required
 def post(location_id):
     if request.method == "POST":
-        if User.id:
-            userid = User.id
-        else:
+        remember_token = request.cookies.get("remember_token")
+        session_token = remember_token.split("|")[0]
+        user = User(session_token)
+        if not user:
             return redirect(url_for("login"))
         
         content = request.form.get("content" + str(location_id))
@@ -205,13 +220,13 @@ def post(location_id):
         cur = conn.cursor()
 
         escaped_content =  content.replace("'", "''")
-        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where userid = '{}' and location_id = '{}' order by time desc;".format(userid, location_id)
+        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where userid = '{}' and location_id = '{}' order by time desc;".format(user.id, location_id)
         cur.execute(sql1)
         latest_visit = cur.fetchone()
         location_id = latest_visit["location_id"]
         photo = latest_visit["photo"]
 
-        sql2 = "insert into Posts (userid, location_id, content, photo) values ('{}', {}, '{}', '{}');".format(userid,location_id, escaped_content, photo)
+        sql2 = "insert into Posts (userid, location_id, content, photo) values ('{}', {}, '{}', '{}');".format(user.id,location_id, escaped_content, photo)
         cur.execute(sql2)
         conn.commit()
         cur.close()
@@ -225,11 +240,10 @@ def post(location_id):
 @login_required
 def detail(location_id, unlocked_number=0):
     if request.method == "GET":
-        if User.id:
-            userid = User.id
-            user = User(userid)
-            username = user.get_name()
-        else:
+        remember_token = request.cookies.get("remember_token")
+        session_token = remember_token.split("|")[0]
+        user = User(session_token)
+        if not user:
             return redirect(url_for("login"))
  
         try:
@@ -241,7 +255,7 @@ def detail(location_id, unlocked_number=0):
         conn.row_factory = dict_factory
         cur = conn.cursor()
 
-        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and userid = '{}' order by time desc;".format(location_id, userid)
+        sql1 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and userid = '{}' order by time desc;".format(location_id, user.id)
         cur.execute(sql1)
         visits = cur.fetchall()
         sql3 = "select * from Locations where id = {}".format(location_id)
@@ -281,7 +295,7 @@ def detail(location_id, unlocked_number=0):
         for i in range(3): 
             nearest_locations[i]["distance"] = "{:,}".format(round(nearest_locations[i]["distance"]))
 
-        return render_template("detail.html", username=username, location=location, message=message, 
+        return render_template("detail.html", username=user.name, location=location, message=message, 
                                 nearest_locations=nearest_locations, unlocked_number=unlocked_number)
 
 def hubeny_formula(latitude1, longitude1, latitude2, longitude2):
@@ -309,7 +323,10 @@ def hubeny_formula(latitude1, longitude1, latitude2, longitude2):
 @login_required
 def posts(page):
     if request.method == "GET":
-        if not User.id:
+        remember_token = request.cookies.get("remember_token")
+        session_token = remember_token.split("|")[0]
+        user = User(session_token)
+        if not user:
             return redirect(url_for("login"))
         
         try:
@@ -356,25 +373,28 @@ def posts(page):
 @login_required
 def checkinWithoutPhoto(location_id):
     if request.method == "GET":
-        if User.id:
-            userid = User.id
-            photo = NO_IMAGE
-            try:
-                dbname = DB_NAME_LOCAL
-                conn = sqlite3.connect(dbname)
-            except sqlite3.OperationalError:
-                dbname = DB_NAME_REMOTE
-                conn = sqlite3.connect(dbname)
-            conn.row_factory = dict_factory
-            cur = conn.cursor()
-            sql = "insert into Visits (userid, location_id, photo) values ('{}', {}, '{}');".format(userid, location_id, photo)
-            cur.execute(sql)
-            conn.commit()
-            cur.close()
-            conn.close()
-            unlocked_number = 0
-        else:
+        remember_token = request.cookies.get("remember_token")
+        session_token = remember_token.split("|")[0]
+        user = User(session_token)
+        if not user:
             return redirect(url_for("login"))
+
+        photo = NO_IMAGE
+        try:
+            dbname = DB_NAME_LOCAL
+            conn = sqlite3.connect(dbname)
+        except sqlite3.OperationalError:
+            dbname = DB_NAME_REMOTE
+            conn = sqlite3.connect(dbname)
+        conn.row_factory = dict_factory
+        cur = conn.cursor()
+        sql = "insert into Visits (userid, location_id, photo) values ('{}', {}, '{}');".format(user.id, location_id, photo)
+        cur.execute(sql)
+        conn.commit()
+        cur.close()
+        conn.close()
+        unlocked_number = 0
+
         return redirect(url_for("detail", location_id=location_id,  unlocked_number=unlocked_number))
 
 def createHTML(filename):
@@ -390,60 +410,63 @@ def createHTML(filename):
 @login_required
 def upload(location_id):
     if request.method == "POST":
-        if User.id:
-            file = request.files["photo"]
-            filename = datetime.now().strftime("%Y%m%d_%H%M%S_") + secure_filename(file.filename)
-            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-            with open(UPLOAD_FOLDER + filename, 'rb') as inputfile:
-                im = Image.open(inputfile)
-                im_io = BytesIO()
-                im.save(im_io, 'JPEG', quality=30)
-            with open(UPLOAD_FOLDER + filename, mode='wb') as outputfile:
-                outputfile.write(im_io.getvalue()) 
-            try:
-                client.upload_file(UPLOAD_FOLDER + filename, BUCKET_NAME, BUCKET_UPLOAD + filename, 
-                ExtraArgs={"ContentType": "image/jpeg", "ACL": "public-read"})
-                with open(DIR_NAME + filename + ".html", mode="w") as f:
-                    f.write(createHTML(filename))
-            except botocore.exceptions.NoCredentialsError:
-                pass
-            os.remove(UPLOAD_FOLDER + filename)
-
-            userid = User.id
-            try:
-                dbname = DB_NAME_LOCAL
-                conn = sqlite3.connect(dbname)
-            except sqlite3.OperationalError:
-                dbname = DB_NAME_REMOTE
-                conn = sqlite3.connect(dbname)
-            cur = conn.cursor()
-            sql1 = "insert into Visits (userid, location_id, photo) values ('{}', {}, '{}');".format(userid, location_id, filename)
-            cur.execute(sql1)
-
-            sql2 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and userid = '{}' and photo != '{}' order by time desc;".format(location_id, userid, NO_IMAGE)
-            cur.execute(sql2)
-            visits_with_photo = cur.fetchall()
-
-            sql3 = "select * from lyrics where userid = '{}';".format(userid)
-            cur.execute(sql3)
-            lyrics = cur.fetchone()
-            unlocked_number = 0
-
-            if len(visits_with_photo) < 2:
-                numbers = []
-                for i in range(1, NUM_OF_LYRICS + 1):
-                    if not lyrics[i]:
-                        numbers.append(i)
-                if len(numbers) > 0:
-                    unlocked_number = numbers[randint(0, len(numbers) - 1)]
-                    sql4 = "update Lyrics set lyric{} = 1 where userid = '{}';".format(unlocked_number, userid)
-                    cur.execute(sql4)
-
-            conn.commit()
-            cur.close()
-            conn.close()
-        else:
+        remember_token = request.cookies.get("remember_token")
+        session_token = remember_token.split("|")[0]
+        user = User(session_token)
+        if not user:
             return redirect(url_for("login"))
+
+        file = request.files["photo"]
+        filename = datetime.now().strftime("%Y%m%d_%H%M%S_") + secure_filename(file.filename)
+        file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+        with open(UPLOAD_FOLDER + filename, 'rb') as inputfile:
+            im = Image.open(inputfile)
+            im_io = BytesIO()
+            im.save(im_io, 'JPEG', quality=30)
+        with open(UPLOAD_FOLDER + filename, mode='wb') as outputfile:
+            outputfile.write(im_io.getvalue()) 
+        try:
+            client.upload_file(UPLOAD_FOLDER + filename, BUCKET_NAME, BUCKET_UPLOAD + filename, 
+            ExtraArgs={"ContentType": "image/jpeg", "ACL": "public-read"})
+            with open(DIR_NAME + filename + ".html", mode="w") as f:
+                f.write(createHTML(filename))
+        except botocore.exceptions.NoCredentialsError:
+            pass
+        os.remove(UPLOAD_FOLDER + filename)
+
+        try:
+            dbname = DB_NAME_LOCAL
+            conn = sqlite3.connect(dbname)
+        except sqlite3.OperationalError:
+            dbname = DB_NAME_REMOTE
+            conn = sqlite3.connect(dbname)
+        cur = conn.cursor()
+        sql1 = "insert into Visits (userid, location_id, photo) values ('{}', {}, '{}');".format(user.id, location_id, filename)
+        cur.execute(sql1)
+
+        sql2 = "select * from Locations left join Visits on Locations.id = Visits.location_id where location_id = {} and userid = '{}' and photo != '{}' order by time desc;".format(location_id, user.id, NO_IMAGE)
+        cur.execute(sql2)
+        visits_with_photo = cur.fetchall()
+
+        sql3 = "select * from lyrics where userid = '{}';".format(user.id)
+        cur.execute(sql3)
+        lyrics = cur.fetchone()
+        unlocked_number = 0
+
+        if len(visits_with_photo) < 2:
+            numbers = []
+            for i in range(1, NUM_OF_LYRICS + 1):
+                if not lyrics[i]:
+                    numbers.append(i)
+            if len(numbers) > 0:
+                unlocked_number = numbers[randint(0, len(numbers) - 1)]
+                sql4 = "update Lyrics set lyric{} = 1 where userid = '{}';".format(unlocked_number, user.id)
+                cur.execute(sql4)
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
     return redirect(url_for("detail", location_id=location_id, unlocked_number=unlocked_number))
     
 @app.route("/map/<int:location_id>", methods=["GET"])
@@ -487,9 +510,10 @@ def map(location_id):
 @login_required
 def lyrics():
     if request.method == "GET":
-        if User.id:
-            userid = User.id
-        else:
+        remember_token = request.cookies.get("remember_token")
+        session_token = remember_token.split("|")[0]
+        user = User(session_token)
+        if not user:
             return redirect(url_for("login"))
         
         try:
@@ -499,7 +523,7 @@ def lyrics():
             dbname = DB_NAME_REMOTE
             conn = sqlite3.connect(dbname)
         cur = conn.cursor()
-        sql = "select * from Lyrics where userid = '{}';".format(userid)
+        sql = "select * from Lyrics where userid = '{}';".format(user.id)
         cur.execute(sql)
         lyrics = cur.fetchone()
 
@@ -535,6 +559,7 @@ def signup():
 
         else:
             password_hash = generate_password_hash(password, method="sha256")
+            session_token = generate_password_hash(str(userid) + str(password), method="sha256")
 
             try:
                 dbname = DB_NAME_LOCAL
@@ -544,7 +569,7 @@ def signup():
                 conn = sqlite3.connect(dbname)
             conn.row_factory = dict_factory
             cur = conn.cursor()
-            sql1 = "insert into Users (id, name, password, profile) values ('{}', '{}', '{}', '');".format(userid, userid, password_hash)
+            sql1 = "insert into Users (id, session_token, name, password, profile) values ('{}', '{}', '{}', '{}', '');".format(userid, session_token, userid, password_hash)
 
             try:
                 cur.execute(sql1)
@@ -575,8 +600,21 @@ def login():
     if request.method == "POST":
         userid = request.form.get("userid")
         password = request.form.get("password")
-        user = User(userid)
-        User.id = userid
+        
+        try:
+            dbname = DB_NAME_LOCAL
+            conn = sqlite3.connect(dbname)
+        except sqlite3.OperationalError:
+            dbname = DB_NAME_REMOTE
+            conn = sqlite3.connect(dbname)
+        conn.row_factory = dict_factory
+        cur = conn.cursor()
+        sql = "select * from Users where id = '{}';".format(userid)
+        cur.execute(sql)
+        temp_user = cur.fetchone()
+        cur.close()
+        conn.close()
+        user = User(temp_user["session_token"])
 
         result = "<span class='text-danger'>*</span> "
         password_pattern = re.compile(r'^[a-zA-Z0-9]+$')
@@ -598,24 +636,20 @@ def login():
             if not check_password_hash(user.password, password):
                 result += "パスワードに誤りがあります"
             elif user.id:
-                login_user(user)
+                login_user(user, remember=True)
                 next = request.args.get("next")
                 return redirect(next or url_for("main"))
         return render_template("login.html", result=result, userid=userid)
     else:
-        if User.id:
-            return render_template("login.html", userid=User.id)
-        else:
-            return render_template("login.html")
+        return render_template("login.html", userid=User.id)
 
 @app.route("/config", methods=["GET", "POST"])
 @login_required
 def config():
-    if User.id:
-        userid = User.id
-        user = User(userid)
-        current_username = user.get_name()
-    else:
+    remember_token = request.cookies.get("remember_token")
+    session_token = remember_token.split("|")[0]
+    user = User(session_token)
+    if not user:
         return redirect(url_for("login"))
 
     try:
@@ -627,7 +661,7 @@ def config():
     conn.row_factory = dict_factory
     cur = conn.cursor()
 
-    sql = "select profile from Users where id = '{}';".format(userid)
+    sql = "select profile from Users where id = '{}';".format(user.id)
     cur.execute(sql)
     profile = cur.fetchone()["profile"]
 
@@ -641,7 +675,7 @@ def config():
             escaped_new_username =  new_username.replace("'", "''")
             profile = request.form.get("profile")
 
-            sql = "update Users set name = '{}' where id = '{}';".format(escaped_new_username, userid)
+            sql = "update Users set name = '{}' where id = '{}';".format(escaped_new_username, user.id)
 
             if not username_pattern.match(new_username):
                 result += "表示名に空白文字は使用できません"
@@ -654,7 +688,7 @@ def config():
                 User.name = new_username
                 current_username = new_username
 
-            sql = "select profile from Users where id = '{}';".format(userid)
+            sql = "select profile from Users where id = '{}';".format(user.id)
             cur.execute(sql)
             profile = cur.fetchone()["profile"]  
             cur.close()
@@ -665,26 +699,25 @@ def config():
             if not profile:
                 profile = ""
             escaped_profile = profile.replace("'", "''")
-            sql = "update Users set profile = '{}' where id = '{}';".format(escaped_profile, userid)
+            sql = "update Users set profile = '{}' where id = '{}';".format(escaped_profile, user.id)
             cur.execute(sql)
             conn.commit()
             result = "<span class='text-success'>*</span> プロフィールを変更しました"
             cur.close()
             conn.close()
-        return render_template("config.html", userid=userid, username=current_username, result=result, profile=profile)
+        return render_template("config.html", userid=user.id, username=current_username, result=result, profile=profile)
     else:
         if not profile:
             profile = ""
-        return render_template("config.html", userid=userid, username=current_username, profile=profile)
+        return render_template("config.html", userid=user.id, username=current_username, profile=profile)
 
 @app.route("/logout")
 @login_required
 def logout():
     logout_user()
-    User.id = None
     return redirect(url_for("login"))
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=80, debug=False, threaded=True)
-    # app.run(host="0.0.0.0", port=80, debug=True, threaded=True)
+    # app.run(host="0.0.0.0", port=80, debug=False, threaded=True)
+    app.run(host="0.0.0.0", port=80, debug=True, threaded=True)
     # serve(app, host="0.0.0.0", port=80, threads=5)

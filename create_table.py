@@ -7,7 +7,7 @@ conn = sqlite3.connect(dbname)
 cur = conn.cursor()
 
 sqls = [ 
-   "create table Users (id varchar(64) primary key, name varchar(64) not null, password varchar(128) not null, profile varchar(1024));",
+   "create table Users (id varchar(64) primary key, session_token varchar(100) not null unique, name varchar(64) not null, password varchar(128) not null, profile varchar(1024));",
    "create table Locations (id integer primary key, name varchar(64) not null unique, latitude double not null, longitude double not null, summary varchar(1024) not null, scene varchar(1024) not null, image varchar(128) not null);",
    "create table Visits (userid varchar(64) not null, location_id int not null, photo varchar(128) not null, time datettime not null default current_timestamp, lyric integer);",
    "create table Posts (id integer primary key, userid varchar(64) not null, location_id int not null, content varchar(1024) not null, photo varchar(128) not null, time datetime not null default current_timestamp);",
