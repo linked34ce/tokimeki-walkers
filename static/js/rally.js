@@ -1,8 +1,23 @@
 window.addEventListener("DOMContentLoaded", () => {
-    if (!document.cookie) {
-        document.cookie = "group=all";
+    let cookieString = document.cookie;
+    let array = cookieString.split(";");
+    let cookies = {};
+    let group = "";
+
+    array.forEach(function(string) {
+        let content = string.split("=");
+        if (content[0].trim() === "group") {
+            group = content[1]
+        }
+    });
+
+    //let group = cookies.group;
+    console.log(group)
+
+    if (!group) {
+        group = "all";
     }
-    let group = document.cookie.slice(6);
+
     if (group === "all") {
         showAll();
     } else {
