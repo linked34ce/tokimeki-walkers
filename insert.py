@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sqlite3
 
 dbname = "main.db"
@@ -23,7 +25,7 @@ cur = conn.cursor()
 
 sqls = [
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (1, '有明西ふ頭公園 霧の噴水広場', 35.627207058157886, 139.79434564243581, '　有明西ふ頭公園は、東京ビッグサイトや有明客船ターミナルに隣接する細長い海上公園です。海岸部では、年間を通して釣りを楽しむことができます。<br>　公園の中心に位置する霧の噴水広場は石柱のようなオブジェが特徴的ですが、ここ数年は誰も霧が出たのを見たことがないようです。', '　1期OPの歌い出しで、かすみとしずくが登場する場所です。下から飛び出してきて、手を繋ぎながらポーズを取る2人の姿が印象的です。<br><br><span class=\"fst-italic\">　\"青空 雨あがり 希望の風吹いて\"</span>', 'season1_opening_scene01.jpg');",
-    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (2, 'TFTビル東館 2階', 35.630495664875234, 139.79107817472897, '', '', 'season1_opening_scene02.jpg');",
+    "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (2, 'TFTビル東館 2階', 35.630495664875234, 139.79107817472897, '　TFTビルは、1996年に東京ファッションタウン株式会社が開業したビルです。しかし大幅な赤字が続いたため、2000年には当ビルの業務は株式会社東京ビッグサイトに委託されました。<br>　現在ではオフィスやホールの貸し出しだけでなく、レストランやクリニックが集う複合施設となっています。', '　1期OPにて歩夢が登場する場所です。この時の歩夢の笑顔は、まさに開花宣言です。背景には作中で虹ヶ咲学園駅として登場するゆりかもめ 東京ビッグサイト駅が見えます。<br>　またこの付近にあるプロント ワンザ有明店は、2期12話にて劇伴『未来ハーモニー with YOU』が流れ、侑と歩夢、そしてランジュの3人が駆け出すシーンに登場しています。<br><br><span class=\"fst-italic\">　\"予感の中 踏みだすよ 最初の一歩\"</span>', 'season1_opening_scene02.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (3, 'セブン-イレブン ROYAL東京ビッグサイト店', 35.62957322139265, 139.79340752996296, '', '', 'season1_opening_scene03.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (4, 'ダイバーシティ東京 プラザ 東京テレポート駅ゲート', 35.62604666093716, 139.77628076815193, '', '', 'season1_opening_scene04.jpg');",
     "insert into Locations (id, name, latitude, longitude, summary, scene, image) values (5, '旧パレットタウン 北側入口', 35.62625254211352, 139.78058600919852, '', '', 'season1_opening_scene05.jpg');",
