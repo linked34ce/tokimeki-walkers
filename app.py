@@ -8,7 +8,6 @@ from flask import render_template, request, redirect, url_for
 from flask_login import LoginManager, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from waitress import serve
 import sqlite3
 import boto3
 import botocore
@@ -700,4 +699,3 @@ def logout():
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=80, debug=False, threaded=True)
     # app.run(host="0.0.0.0", port=80, debug=True, threaded=True)
-    # serve(app, host="0.0.0.0", port=80, threads=5)
