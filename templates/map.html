@@ -45,15 +45,19 @@
     let redMarker = null;
 
     {% for location in locations %}
-     var marker = L.marker(
-            [{{ location.latitude }}, {{ location.longitude }}],
-            { icon: L.spriteIcon("blue") }
-        ).addTo(map)
-        .bindPopup("<a href='/rally/{{ location.id }}/0'>{{ location.name }}</a><br><br><img src='https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//images/{{ location.image }}' width='190vw'>");
+    var iconColor = "blue";
+    {% if location. visited == "✅ 訪問済" %}
+    var iconColor = "green";
+    {% endif %}
 
+    var marker = L.marker(
+            [{{ location.latitude }}, {{ location.longitude }}],
+            { icon: L.spriteIcon(iconColor) }
+        ).addTo(map)
+        .bindPopup("{{ location.visited }}<br><a href='/rally/{{ location.id }}/0'>{{ location.name }}</a><br><br><img src='https://tokimeki-walkers.s3.ap-northeast-1.amazonaws.com//images/{{ location.image }}' width='190vw'>");
     if (centralLocationId === {{ location.id }}) {
-       marker.openPopup();
-       redMarker = L.marker(
+        marker.openPopup();
+        redMarker = L.marker(
             [{{ location.latitude }}, {{ location.longitude }}],
             { icon: L.spriteIcon("red") }
         ).addTo(map)

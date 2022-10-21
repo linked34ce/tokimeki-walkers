@@ -499,6 +499,16 @@ def map(location_id):
             cur.execute(sql2)
             central_location = cur.fetchone()
 
+        for location in locations:
+            sql2 = "select * from Locations left join Visits on Locations.id = Visits.location_id where userid = '{}' and location_id = '{}' order by time desc;".format(user.id, location["id"])
+            cur.execute(sql2)
+            visits = cur.fetchall()
+            location["visit_count"] = len(visits)
+            if location["visit_count"] > 0:
+                location["visited"] = "✅ 訪問済"
+            else:
+                location["visited"] = "⚠️ 未訪問"
+
         cur.close()
         conn.close()
 
@@ -596,6 +606,7 @@ def login():
     if request.method == "POST":
         userid = request.form.get("userid")
         password = request.form.get("password")
+        escaped_userid = userid.replace("'", '"')
         
         try:
             dbname = DB_NAME_LOCAL
@@ -605,7 +616,7 @@ def login():
             conn = sqlite3.connect(dbname)
         conn.row_factory = dict_factory
         cur = conn.cursor()
-        sql = "select * from Users where id = '{}';".format(userid)
+        sql = "select * from Users where id = '{}';".format(escaped_userid)
         cur.execute(sql)
         temp_user = cur.fetchone()
         cur.close()
@@ -615,7 +626,9 @@ def login():
             user = User(temp_user["session_token"])        
 
         result = "<span class='text-danger'>*</span> "
+        userid_pattern = re.compile(r'^[a-zA-Z0-9]+$')
         password_pattern = re.compile(r'^[a-zA-Z0-9]+$')
+        
 
         if not userid and not password:
             result += "ユーザIDとパスワードを入力してください"
@@ -623,6 +636,8 @@ def login():
         elif not userid:
             result += "ユーザIDを入力してください"
             userid = ""
+        elif not userid_pattern.match(userid):
+            result += "ユーザIDは半角英数字です"
         elif not password:
             result += "パスワードを入力してください"
         elif len(password) < 8 or not password_pattern.match(password):
