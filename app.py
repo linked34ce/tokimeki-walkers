@@ -401,26 +401,27 @@ def upload(location_id):
         filename =  datetime.now().strftime("%Y%m%d_%H%M%S_") + str(randint(0, 100000)).zfill(6) + "_" + secure_filename(file.filename)
         file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
 
-        convert_image = {
-            1: lambda img: img,
-            2: lambda img: img.transpose(Image.FLIP_LEFT_RIGHT),                              # 左右反転
-            3: lambda img: img.transpose(Image.ROTATE_180),                                   # 180度回転
-            4: lambda img: img.transpose(Image.FLIP_TOP_BOTTOM),                              # 上下反転
-            5: lambda img: img.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.ROTATE_90),  # 左右反転＆反時計回りに90度回転
-            6: lambda img: img.transpose(Image.ROTATE_270),                                   # 反時計回りに270度回転
-            7: lambda img: img.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.ROTATE_270), # 左右反転＆反時計回りに270度回転
-            8: lambda img: img.transpose(Image.ROTATE_90),                                    # 反時計回りに90度回転
-        }
-
         with open(UPLOAD_FOLDER + filename, "rb") as inputfile:
+            convert_image = {
+                1: lambda img: img,
+                2: lambda img: img.transpose(Image.Transpose.FLIP_LEFT_RIGHT), 
+                3: lambda img: img.transpose(Image.Transpose.ROTATE_180),
+                4: lambda img: img.transpose(Image.Transpose.FLIP_TOP_BOTTOM),
+                5: lambda img: img.transpose(Image.Transpose.FLIP_LEFT_RIGHT).transpose(Image.Transpose.ROTATE_270),
+                6: lambda img: img.transpose(Image.Transpose.ROTATE_270),
+                7: lambda img: img.transpose(Image.Transpose.FLIP_LEFT_RIGHT).transpose(Image.Transpose.ROTATE_270),
+                8: lambda img: img.transpose(Image.Transpose.ROTATE_90)
+            }
             im = Image.open(inputfile)
             exif = im._getexif()
             orientation = exif.get(0x112, 1)
             im = convert_image[orientation](im)
             im_io = BytesIO()
             im.save(im_io, "JPEG", quality=30)
+
         with open(UPLOAD_FOLDER + filename, mode="wb") as outputfile:
             outputfile.write(im_io.getvalue())
+
         try:
             client.upload_file(UPLOAD_FOLDER + filename, BUCKET_NAME, BUCKET_UPLOAD + filename, 
                                 ExtraArgs={"ContentType": "image/jpeg", "ACL": "public-read"})
