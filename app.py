@@ -398,14 +398,14 @@ def upload(location_id):
             return redirect(url_for("login"))
 
         file = request.files["photo"]
-        filename = datetime.now().strftime("%Y%m%d_%H%M%S_") + secure_filename(file.filename)
+        filename = str(randint(0, 100000)).zfill(6) + "_" + datetime.now().strftime("%Y%m%d_%H%M%S_") + secure_filename(file.filename)
         file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-        with open(UPLOAD_FOLDER + filename, 'rb') as inputfile:
-            im = Image.open(inputfile)
-            im_io = BytesIO()
-            im.save(im_io, 'JPEG', quality=30)
-        with open(UPLOAD_FOLDER + filename, mode='wb') as outputfile:
-            outputfile.write(im_io.getvalue()) 
+        # with open(UPLOAD_FOLDER + filename, 'rb') as inputfile:
+        #     im = Image.open(inputfile)
+        #     im_io = BytesIO()
+        #     im.save(im_io, 'JPEG', quality=30)
+        # with open(UPLOAD_FOLDER + filename, mode='wb') as outputfile:
+        #     outputfile.write(im_io.getvalue()) 
         try:
             client.upload_file(UPLOAD_FOLDER + filename, BUCKET_NAME, BUCKET_UPLOAD + filename, 
             ExtraArgs={"ContentType": "image/jpeg", "ACL": "public-read"})
