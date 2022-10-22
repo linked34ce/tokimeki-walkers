@@ -189,7 +189,7 @@
         document.getElementById("hidden-lyrics").remove();
     });
 
-    const THRESHOLD = 1000000; // 実際は50m テスト用: 100000m
+    const THRESHOLD = 50; // 実際は50m テスト用: 100000m
     let discriminator = document.getElementById("distance");
 
     let watchId = navigator.geolocation.watchPosition(pos => {
