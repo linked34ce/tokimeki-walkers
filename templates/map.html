@@ -99,9 +99,10 @@
             function success(pos) {
                 let lat = pos.coords.latitude;
                 let lng = pos.coords.longitude;
-                map.setView([lat, lng]);
                 if (currentMarker) {
                     map.removeLayer(currentMarker);
+                } else {
+                    map.setView([lat, lng]);
                 }
                 currentMarker = L.marker(
                     [lat, lng], 
